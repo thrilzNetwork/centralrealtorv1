@@ -95,7 +95,7 @@ function MarketingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="pt-36 pb-28 max-w-6xl mx-auto px-4 sm:px-6">
+      <section className="pt-28 pb-14 max-w-6xl mx-auto px-4 sm:px-6">
         <div className="max-w-4xl">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-5 h-px bg-[#FF7F11]" />
@@ -145,7 +145,7 @@ function MarketingPage() {
         </div>
 
         {/* Stats */}
-        <div className="mt-20 grid grid-cols-3 gap-8 max-w-md">
+        <div className="mt-12 grid grid-cols-3 gap-8 max-w-md">
           {STATS.map((s) => (
             <div key={s.label}>
               <p className="text-4xl font-light text-[#FF7F11] font-serif">{s.n}</p>
@@ -165,7 +165,7 @@ function MarketingPage() {
       </div>
 
       {/* Problem / Solution */}
-      <section className="py-28 max-w-6xl mx-auto px-4 sm:px-6">
+      <section className="py-16 max-w-6xl mx-auto px-4 sm:px-6">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div>
             <span className="label-caps text-[#6B7565]">El problema</span>
@@ -229,9 +229,9 @@ function MarketingPage() {
       </section>
 
       {/* Features */}
-      <section className="bg-[#262626] py-28">
+      <section className="bg-[#262626] py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="mb-16">
+          <div className="mb-10">
             <span className="label-caps text-[#ACBFA4]">Funcionalidades</span>
             <h2 className="text-white mt-3 font-serif leading-tight tracking-tight" style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)" }}>
               Todo lo que necesita<br />
@@ -251,8 +251,8 @@ function MarketingPage() {
       </section>
 
       {/* How it works */}
-      <section className="py-28 max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="mb-16">
+      <section className="py-16 max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="mb-10">
           <span className="label-caps text-[#6B7565]">Proceso</span>
           <h2 className="text-[#262626] mt-3 font-serif" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
             De cero a portal en 3 pasos
@@ -278,8 +278,8 @@ function MarketingPage() {
       </section>
 
       {/* Demo video */}
-      <section className="py-28 max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-12">
+      <section className="py-16 max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-8">
           <span className="label-caps text-[#6B7565]">Demo en vivo</span>
           <h2 className="text-[#262626] mt-3 font-serif" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
             Míralo funcionar en<br />
@@ -298,7 +298,7 @@ function MarketingPage() {
       </section>
 
       {/* Pricing — contact */}
-      <section className="bg-white py-28 border-t border-[#EAE7DC]">
+      <section className="bg-white py-16 border-t border-[#EAE7DC]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <span className="label-caps text-[#6B7565]">Planes</span>
           <h2 className="text-[#262626] mt-3 mb-4 font-serif" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
@@ -360,7 +360,7 @@ function MarketingPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-[#262626] py-28 relative overflow-hidden">
+      <section className="bg-[#262626] py-16 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "radial-gradient(circle at 30% 50%, #FF7F11 0%, transparent 60%)" }} />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 text-center">
           <span className="label-caps text-[#ACBFA4]">Empieza hoy</span>
