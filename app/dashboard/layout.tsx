@@ -18,10 +18,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   let org = null;
   if (profile?.organization_id) {
-    const { data: orgData } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: orgData } = await (supabase as any)
        .from("organizations")
        .select("is_active, trial_expires_at").eq("id", profile.organization_id).single();
-    org = orgData;
+    org = orgData as { is_active: boolean; trial_expires_at: string } | null;
   }
 
   if (profile && !profile.onboarding_completed) {
