@@ -1,0 +1,27 @@
+{
+  "entities": {
+    "Property": {
+      "title": "Property",
+      "description": "A real estate property listing.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "The title of the property listing." },
+        "price": { "type": "number", "description": "The price of the property." },
+        "location": { "type": "string", "description": "The location of the property." },
+        "category": { "type": "string", "enum": ["Venta", "Renta", "Terreno", "Proyecto"], "description": "The category of the property." },
+        "beds": { "type": "string", "description": "Number of bedrooms." },
+        "baths": { "type": "string", "description": "Number of bathrooms." },
+        "img": { "type": "string", "format": "uri", "description": "URL of the property image." },
+        "description": { "type": "string", "description": "Detailed description of the property." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the property was added." }
+      },
+      "required": ["title", "price", "location", "category", "img"]
+    }
+  },
+  "firestore": {
+    "/properties/{propertyId}": {
+      "schema": { "$ref": "Property" },
+      "description": "Collection of all property listings."
+    }
+  }
+}
