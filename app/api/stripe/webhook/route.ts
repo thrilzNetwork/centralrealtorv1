@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
           stripe_customer_id: session.customer as string,
         }).eq("id", profileId);
 
-        let orgId = organizationId;
+        let orgId: string | undefined = organizationId;
         if (!orgId) {
            const { data: profile } = await admin.from("profiles").select("organization_id").eq("id", profileId).single();
            orgId = profile?.organization_id ?? undefined;
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       const profileId = sub.metadata?.profileId;
       const organizationId = sub.metadata?.organizationId;
 
-      let orgId = organizationId;
+      let orgId: string | undefined = organizationId;
       if (!orgId && profileId) {
          const { data: profile } = await admin.from("profiles").select("organization_id").eq("id", profileId).single();
          orgId = profile?.organization_id ?? undefined;
