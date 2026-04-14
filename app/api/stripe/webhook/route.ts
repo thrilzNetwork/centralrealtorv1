@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
         let orgId = organizationId;
         if (!orgId) {
            const { data: profile } = await admin.from("profiles").select("organization_id").eq("id", profileId).single();
-           orgId = profile?.organization_id;
+           orgId = profile?.organization_id ?? undefined;
         }
 
         if (orgId) {
