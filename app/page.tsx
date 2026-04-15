@@ -8,6 +8,7 @@ import { RealtorV1Page } from "@/components/themes/realtor-v1/RealtorV1Page";
 import { ArrowRight, MapPin, Layout, Target, Users, Play } from "lucide-react";
 import { LandingChatbot } from "@/components/LandingChatbot";
 import { BrandLogoBar } from "@/components/landing/BrandLogoBar";
+import { AccessGate } from "@/components/landing/AccessGate";
 import type { Metadata } from "next";
 
 // ─── Metadata ─────────────────────────────────────────────────
@@ -77,9 +78,11 @@ const STATS = [
 
 function MarketingPage() {
   return (
-    <div className="min-h-screen bg-[#F7F5EE] font-sans">
-      {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#F7F5EE]/95 backdrop-blur-sm border-b border-[#EAE7DC]">
+    <>
+      <AccessGate />
+      <div className="min-h-screen bg-[#F7F5EE] font-sans">
+        {/* Nav */}
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-[#F7F5EE]/95 backdrop-blur-sm border-b border-[#EAE7DC]">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 flex items-center justify-between h-[4.5rem]">
           <div className="flex items-center gap-3">
             <div className="w-5 h-5 bg-[#FF7F11] rounded-sm" />
