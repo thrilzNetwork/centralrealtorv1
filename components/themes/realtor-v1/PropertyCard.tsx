@@ -71,8 +71,8 @@ export function PropertyCard({ listing }: PropertyCardProps) {
       {/* Info */}
       <div className="p-4">
         <h3
-          className="text-[#262626] mb-1 line-clamp-1"
-          style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: "1.1rem", fontWeight: 500 }}
+          className="text-base sm:text-lg text-[#262626] mb-1 line-clamp-1"
+          style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontWeight: 500 }}
         >
           {listing.title}
         </h3>
@@ -82,7 +82,7 @@ export function PropertyCard({ listing }: PropertyCardProps) {
         )}
 
         {/* Specs */}
-        <div className="flex items-center gap-4 text-xs text-[#6B7565] mb-4">
+        <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs text-[#6B7565] mb-4">
           {listing.area_m2 && (
             <span className="flex items-center gap-1">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -119,7 +119,7 @@ export function PropertyCard({ listing }: PropertyCardProps) {
               {formatPrice(listing.price, listing.currency ?? "USD")}
             </span>
             <span
-              className="label-caps text-xs transition-opacity opacity-0 group-hover:opacity-100"
+              className="label-caps text-xs transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
               style={{ color: profile.primary_color }}
             >
               Ver detalle →

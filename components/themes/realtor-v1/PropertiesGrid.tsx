@@ -50,13 +50,13 @@ export function PropertiesGrid({ listings, selectedType, searchQuery }: Properti
     <div className="min-h-screen bg-[#F7F5EE]">
       <RealtorV1Header />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-12">
         {/* Header */}
-        <div className="mb-10">
+        <div className="mb-6 sm:mb-10">
           <span className="accent-line" />
           <h1
-            className="text-[#262626]"
-            style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: "2.5rem", fontWeight: 500 }}
+            className="text-3xl sm:text-4xl lg:text-5xl text-[#262626]"
+            style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontWeight: 500 }}
           >
             Inmuebles
           </h1>
