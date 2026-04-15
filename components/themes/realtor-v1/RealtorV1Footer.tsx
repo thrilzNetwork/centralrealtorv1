@@ -18,6 +18,8 @@ export function RealtorV1Footer() {
           <Link href="/" className="label-caps hover:text-white transition-colors">Inicio</Link>
           <Link href="/propiedades" className="label-caps hover:text-white transition-colors">Inmuebles</Link>
           <Link href="#contacto" className="label-caps hover:text-white transition-colors">Contacto</Link>
+          <Link href="/privacy" className="label-caps hover:text-white transition-colors">Privacidad</Link>
+          <Link href="/terms" className="label-caps hover:text-white transition-colors">Términos</Link>
         </div>
 
         <div className="text-xs">
