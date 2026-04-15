@@ -214,9 +214,10 @@ export function ChatWizard() {
       }
 
       // ── Step 4: Link Google Account (Optional) ───────────────────────────
-      addMessage("agent", "🎉 ¡Todo listo! Tu portal está activo. Antes de entrar, ¿quieres conectar tu cuenta de Google? Esto nos permitirá sincronizar tu calendario y enviar confirmaciones automáticas a tus clientes.");
+      // Feature temporarily disabled
+      addMessage("agent", "🎉 ¡Todo listo! Tu portal está activo. Ahora puedes entrar y empezar a gestionar tus propiedades.");
 
-      setStep("google_link");
+      setStep("done");
       setLoading(false);
       return;
 

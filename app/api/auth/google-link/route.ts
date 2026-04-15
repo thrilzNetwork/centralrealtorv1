@@ -17,6 +17,9 @@ export async function GET(request: NextRequest) {
       scopes: [
         "https://www.googleapis.com/auth/calendar",
         "https://www.googleapis.com/auth/gmail.send",
+        "openid",
+        "email",
+        "profile",
       ].join(" "),
       queryParams: {
         access_type: "offline",
