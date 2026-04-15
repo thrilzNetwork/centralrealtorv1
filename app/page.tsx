@@ -111,7 +111,7 @@ function MarketingPage() {
       <div className="min-h-screen bg-[#F7F5EE] font-sans landing-content">
         {/* Nav */}
         <nav className="fixed top-0 left-0 right-0 z-50 bg-[#F7F5EE]/95 backdrop-blur-sm border-b border-[#EAE7DC]">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8 flex items-center justify-between h-[4.5rem]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 flex items-center justify-between h-[4.5rem]">
           <div className="flex items-center gap-3">
             <div className="w-5 h-5 bg-[#FF7F11] rounded-sm" />
             <span className="text-[#262626] font-serif text-lg tracking-tight">Central Bolivia</span>
@@ -125,7 +125,7 @@ function MarketingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="pt-36 pb-20 max-w-6xl mx-auto px-6 sm:px-8">
+      <section className="pt-36 pb-12 md:pb-20 max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="max-w-5xl">
           <div className="flex items-center gap-3 mb-10">
             <div className="w-8 h-px bg-[#FF7F11]" />
@@ -188,7 +188,7 @@ function MarketingPage() {
 
       {/* Mientras duermes — Activity feed */}
       <section className="bg-[#1C1C1C] py-24">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <span className="label-caps text-[#ACBFA4]/60 tracking-[0.2em]">Automatización total</span>
@@ -233,7 +233,7 @@ function MarketingPage() {
       </section>
 
       {/* Problem / Solution */}
-      <section className="py-24 max-w-6xl mx-auto px-6 sm:px-8">
+      <section className="py-12 md:py-24 max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="grid lg:grid-cols-2 gap-20 items-center">
           <div>
             <span className="label-caps text-[#ACBFA4] tracking-[0.2em]">El problema</span>
@@ -281,7 +281,7 @@ function MarketingPage() {
 
       {/* Features */}
       <section className="bg-[#1C1C1C] py-24">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-6">
             <div>
               <span className="label-caps text-[#ACBFA4]/60 tracking-[0.2em]">Funcionalidades</span>
@@ -318,7 +318,7 @@ function MarketingPage() {
       </section>
 
       {/* How it works */}
-      <section className="py-24 max-w-6xl mx-auto px-6 sm:px-8">
+      <section className="py-12 md:py-24 max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="mb-16">
           <span className="label-caps text-[#ACBFA4] tracking-[0.2em]">Proceso</span>
           <h2
@@ -347,8 +347,8 @@ function MarketingPage() {
       </section>
 
       {/* AI Stack */}
-      <section className="py-20 bg-[#1C1C1C]">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+      <section className="py-12 md:py-20 bg-[#1C1C1C]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
             <div>
               <span className="label-caps text-[#ACBFA4]/60 tracking-[0.2em]">Tecnología</span>
@@ -384,8 +384,8 @@ function MarketingPage() {
       </section>
 
       {/* Demo video */}
-      <section id="demo" className="py-24 bg-white border-y border-[#EAE7DC]" style={{ scrollMarginTop: "4.5rem" }}>
-        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+      <section id="demo" className="py-12 md:py-24 bg-white border-y border-[#EAE7DC]" style={{ scrollMarginTop: "4.5rem" }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
           <div className="mb-12">
             <span className="label-caps text-[#ACBFA4] tracking-[0.2em]">Demo en vivo</span>
             <h2
@@ -409,7 +409,7 @@ function MarketingPage() {
       </section>
 
       {/* Pricing */}
-      <section className="py-24 max-w-6xl mx-auto px-6 sm:px-8">
+      <section className="py-12 md:py-24 max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="mb-16">
           <span className="label-caps text-[#ACBFA4] tracking-[0.2em]">Planes</span>
           <h2
@@ -490,9 +490,9 @@ function MarketingPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-[#FF7F11] py-24 relative overflow-hidden">
+      <section className="bg-[#FF7F11] py-12 md:py-24 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 70% 50%, #fff 0%, transparent 60%)" }} />
-        <div className="relative max-w-6xl mx-auto px-6 sm:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-10">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-10">
           <div>
             <span className="label-caps text-white/60 tracking-[0.2em]">Empieza hoy</span>
             <h2
@@ -520,7 +520,7 @@ function MarketingPage() {
 
       {/* Footer */}
       <footer className="bg-[#111] text-[#6B7565] py-12">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8 pb-8 border-b border-white/5">
             <div className="flex items-center gap-3">
               <div className="w-4 h-4 bg-[#FF7F11] rounded-sm" />
