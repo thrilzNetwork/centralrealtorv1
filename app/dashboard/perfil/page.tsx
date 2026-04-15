@@ -34,11 +34,11 @@ export default async function PerfilPage({
         </h1>
       </div>
       <ProfileEditor profile={profile} />
-      <GoogleConnectionCard
+      {/* <GoogleConnectionCard
         connected={!!profile?.google_refresh_token}
         justConnected={google === "connected"}
         error={google === "error"}
-      />
+      /> */}
     </div>
   );
 }

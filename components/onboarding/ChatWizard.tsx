@@ -80,37 +80,11 @@ export function ChatWizard() {
 
     switch (step) {
       case "welcome":
-        agentReply("social");
+        agentReply("email");
         break;
 
-      // ── Social (optional) — no server fetch, just parse handle ─────────
+      // ── Social (disabled) ─────────────────────────────────────────────────
       case "social": {
-        // Accept: @ales23 | ales23 | https://instagram.com/ales23/
-        const handle = val
-          .replace(/https?:\/\/(www\.)?instagram\.com\//i, "")
-          .replace(/^@/, "")
-          .replace(/\/$/, "")
-          .split("?")[0]
-          .trim();
-
-        if (handle) {
-          const avatarUrl = `https://unavatar.io/instagram/${handle}`;
-          setSocialData({ handle, avatar_url: avatarUrl });
-          setData((d) => ({ ...d, socialUrl: handle }));
-
-          setIsTyping(true);
-          await new Promise((r) => setTimeout(r, 500));
-          setIsTyping(false);
-
-          addMessage(
-            "agent",
-            `✓ Guardé tu usuario @${handle}. Tu foto de perfil se usará en tu portal. Continuemos con tu cuenta.`,
-            undefined,
-            avatarUrl,
-          );
-          await new Promise((r) => setTimeout(r, 400));
-        }
-
         agentReply("email");
         break;
       }
@@ -212,9 +186,14 @@ export function ChatWizard() {
       }
 
       // ── Step 4: Link Google Account (Optional) ───────────────────────────
+<<<<<<< HEAD
       addMessage("agent", STEPS.google_link.message);
+=======
+      // Feature temporarily disabled
+      addMessage("agent", "🎉 ¡Todo listo! Tu portal está activo. Ahora puedes entrar y empezar a gestionar tus propiedades.");
+>>>>>>> 3e27c620b251cdc6eeb901b3689d858d8d3f38b3
 
-      setStep("google_link");
+      setStep("done");
       setLoading(false);
       return;
 
