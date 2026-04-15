@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { AddressAutocomplete } from "@/components/geo/AddressAutocomplete";
 import { MiniMap } from "@/components/geo/MiniMap";
 import type { AutocompleteSuggestion } from "@/lib/geo/client";
+import { CMDigitalPanel } from "@/components/dashboard/CMDigitalPanel";
 
 type PropertyType =
   | "casa"
@@ -263,6 +264,7 @@ export function EditListingForm({ listing }: { listing: Listing }) {
   }
 
   return (
+    <>
     <form onSubmit={handleSave} className="flex flex-col gap-6">
 
       {/* ── General info ─────────────────────────────────── */}
@@ -401,5 +403,7 @@ export function EditListingForm({ listing }: { listing: Listing }) {
         )}
       </div>
     </form>
+    <CMDigitalPanel listingId={listing.id} />
+    </>
   );
 }

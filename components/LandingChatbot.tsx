@@ -28,7 +28,7 @@ const STEPS: Step[] = [
     id: "role",
     botText: "Hola! 👋 Soy el asistente de Central Bolivia.\n\n¿Cómo describes tu rol?",
     inputType: "quick",
-    quickOptions: ["🏢 Agente independiente", "🏛️ Broker / Dueño de agencia", "🌐 Franquicia (Re/Max, C21…)", "📋 Otro"],
+    quickOptions: ["Agente", "Broker"],
     field: "role",
   },
   {
@@ -159,7 +159,7 @@ export function LandingChatbot() {
   return (
     <>
       {/* Floating button + teaser */}
-      <div style={{ position: "fixed", bottom: 24, left: 20, zIndex: 9999, display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ position: "fixed", bottom: 24, right: 20, zIndex: 9999, display: "flex", flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
         <motion.button
           onClick={() => setOpen(v => !v)}
           whileHover={{ scale: 1.08 }}
@@ -185,9 +185,9 @@ export function LandingChatbot() {
           {teaserVisible && !open && (
             <motion.button
               onClick={() => setOpen(true)}
-              initial={{ opacity: 0, x: -16, scale: 0.9 }}
+              initial={{ opacity: 0, x: 16, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: -16, scale: 0.9 }}
+              exit={{ opacity: 0, x: 16, scale: 0.9 }}
               transition={{ duration: 0.28, ease: "easeOut" }}
               style={{
                 background: "#262626", border: `1px solid ${PRIMARY}`, cursor: "pointer",
@@ -215,7 +215,7 @@ export function LandingChatbot() {
             exit={{ opacity: 0, y: 20, scale: 0.97 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             style={{
-              position: "fixed", bottom: 82, left: 20, zIndex: 9998,
+              position: "fixed", bottom: 82, right: 20, zIndex: 9998,
               width: "min(340px, calc(100vw - 32px))",
               background: "#1a1a1a", borderRadius: 16,
               boxShadow: "0 20px 56px rgba(0,0,0,0.55)",

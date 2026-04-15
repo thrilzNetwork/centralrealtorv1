@@ -4,12 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTenant } from "@/components/themes/TenantContext";
-import { Menu, X, MessageSquare } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
   { href: "#inicio",    label: "Inicio" },
   { href: "#inmuebles", label: "Inmuebles" },
-  { href: "#mapa",      label: "Mapa" },
   { href: "#contacto",  label: "Contacto" },
 ];
 
@@ -18,9 +17,6 @@ export function RealtorV1Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const primary = profile.primary_color ?? "#FF7F11";
-  const waUrl   = profile.whatsapp
-    ? `https://wa.me/${profile.whatsapp.replace(/\D/g, "")}`
-    : "#";
 
   const brokerName     = profile.broker_name;
   const brokerLogoUrl  = profile.broker_logo_url;
@@ -119,20 +115,16 @@ export function RealtorV1Header() {
             {/* ── Right: WhatsApp CTA + mobile toggle ───────────────── */}
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               {profile.whatsapp && (
-                <a href={waUrl} target="_blank" rel="noopener noreferrer"
+                <a href={`tel:+${profile.whatsapp.replace(/\D/g, "")}`}
                   className="hidden sm:flex"
                   style={{
-                    display: "flex", alignItems: "center", gap: 7,
-                    backgroundColor: primary, color: "#fff",
-                    padding: "0.55rem 1.25rem", borderRadius: 2,
-                    fontFamily: sans, fontSize: "0.62rem", letterSpacing: "0.16em",
-                    textTransform: "uppercase", fontWeight: 700, textDecoration: "none",
-                    transition: "opacity 0.2s",
+                    color: "#aaa", fontFamily: sans, fontSize: "0.72rem",
+                    letterSpacing: "0.06em", textDecoration: "none", transition: "color 0.2s",
                   }}
-                  onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
-                  onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+                  onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "#aaa")}
                 >
-                  <MessageSquare size={15} />
+                  {profile.whatsapp}
                 </a>
               )}
 
@@ -157,14 +149,12 @@ export function RealtorV1Header() {
                 >{l.label}</a>
               ))}
               {profile.whatsapp && (
-                <a href={waUrl} target="_blank" rel="noopener noreferrer"
+                <a href={`tel:+${profile.whatsapp.replace(/\D/g, "")}`}
                   style={{
-                    backgroundColor: primary, color: "#fff", padding: "0.85rem",
-                    textAlign: "center", fontFamily: sans, fontSize: "0.68rem",
-                    letterSpacing: "0.15em", textTransform: "uppercase",
-                    textDecoration: "none", fontWeight: 700, marginTop: 4,
+                    color: "#aaa", fontFamily: sans, fontSize: "0.75rem",
+                    letterSpacing: "0.06em", textDecoration: "none", marginTop: 4,
                   }}
-                >Contactar por WhatsApp</a>
+                >📞 {profile.whatsapp}</a>
               )}
             </div>
           </div>

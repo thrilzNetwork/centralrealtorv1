@@ -164,6 +164,35 @@ export function SiteCustomizerForm({ settings }: { settings: SiteSettings | null
   const [saved,  setSaved]  = useState(false);
   const [error,  setError]  = useState<string | null>(null);
 
+  // Brand PDF color extraction
+  const [pdfExtractingColors, setPdfExtractingColors] = useState(false);
+  const [colorPdfError,       setColorPdfError]       = useState<string | null>(null);
+  const [colorPdfSuccess,     setColorPdfSuccess]     = useState(false);
+
+  async function handleBrandPdfUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPdfExtractingColors(true);
+    setColorPdfError(null);
+    setColorPdfSuccess(false);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/parse-brand-pdf", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al procesar PDF");
+      if (data.primary_color)   { setPrimaryColor(data.primary_color); }
+      if (data.secondary_color) { setSecondaryColor(data.secondary_color); }
+      if (data.colors?.length)  { setColorPdfSuccess(true); setTimeout(() => setColorPdfSuccess(false), 4000); }
+      else { setColorPdfError(data.message || "No se encontraron colores en el PDF"); }
+    } catch (err) {
+      setColorPdfError(err instanceof Error ? err.message : "Error al procesar PDF");
+    } finally {
+      setPdfExtractingColors(false);
+      e.target.value = "";
+    }
+  }
+
   async function uploadFile(file: File, bucket: string): Promise<string | null> {
     const fd = new FormData();
     fd.append("file", file);
@@ -334,6 +363,24 @@ export function SiteCustomizerForm({ settings }: { settings: SiteSettings | null
               {logoUrl && <button type="button" onClick={() => setLogoUrl("")} className="text-xs text-red-500 text-left hover:underline">Eliminar</button>}
             </div>
           </div>
+        </div>
+
+        {/* Brand PDF color extraction */}
+        <div className="flex flex-col gap-2 pt-1">
+          <label className="label-caps text-[#6B7565]">Extraer colores de PDF de marca</label>
+          <div className="flex items-center gap-3 flex-wrap">
+            <label className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 border border-dashed border-[#D8D3C8] text-sm text-[#6B7565] rounded-sm hover:border-[#FF7F11] hover:bg-[#FFF8F2] transition-colors ${pdfExtractingColors ? "opacity-60 pointer-events-none" : ""}`}>
+              {pdfExtractingColors ? (
+                <><div className="w-4 h-4 border-2 border-[#FF7F11] border-t-transparent rounded-full animate-spin" /> Extrayendo colores...</>
+              ) : (
+                <><span>📄</span> Subir PDF de branding</>
+              )}
+              <input type="file" accept=".pdf" className="hidden" onChange={handleBrandPdfUpload} disabled={pdfExtractingColors} />
+            </label>
+            {colorPdfSuccess && <span className="text-xs text-emerald-600 font-medium">✓ Colores aplicados</span>}
+          </div>
+          {colorPdfError && <p className="text-xs text-amber-600">{colorPdfError}</p>}
+          <p className="text-xs text-[#ACBFA4]">Sube el PDF de tu manual de marca y detectaremos los colores automáticamente.</p>
         </div>
 
         {/* Colors */}

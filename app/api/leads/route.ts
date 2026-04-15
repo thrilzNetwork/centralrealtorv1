@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       if (rpcError) console.error("increment_listing_hearts failed:", rpcError.message);
     }
 
-    // Notify realtor
+    // Notify realtor (in-app)
     await admin.from("notifications").insert({
       profile_id: profileId,
       lead_id: lead.id,
@@ -71,6 +71,23 @@ export async function POST(request: NextRequest) {
         ? `${visitorName ?? "Visitante"} (${visitorEmail})`
         : (visitorName ?? "Visitante anónimo"),
     });
+
+    // Gmail notification — fire-and-forget (best-effort, no await)
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://centralbolivia.com";
+    const emailSubject =
+      type === "heart"
+        ? `Nuevo interesado: ${visitorName ?? "Visitante"} guardó una propiedad`
+        : `Nuevo mensaje de ${visitorName ?? "Visitante"}`;
+    const emailBody =
+      type === "heart"
+        ? `${visitorName ?? "Un visitante"}${visitorEmail ? ` (${visitorEmail})` : ""} guardó una de tus propiedades en Central Bolivia.\n\nRevisa tu panel: ${siteUrl}/dashboard`
+        : `${visitorName ?? "Un visitante"}${visitorEmail ? ` (${visitorEmail})` : ""} te envió un mensaje:\n\n${message ?? "(sin mensaje)"}\n\nRevisa tu panel: ${siteUrl}/dashboard`;
+
+    fetch(`${siteUrl}/api/notifications/email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ profile_id: profileId, subject: emailSubject, body: emailBody }),
+    }).catch(() => {/* best-effort */});
 
     return NextResponse.json({ success: true, leadId: lead.id });
   } catch (err) {

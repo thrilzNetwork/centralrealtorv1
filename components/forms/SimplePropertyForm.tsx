@@ -14,6 +14,8 @@ export function SimplePropertyForm() {
   const [scraping, setScraping] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scrapeUrl, setScrapeUrl] = useState("");
+  const [importTab, setImportTab] = useState<"url" | "pdf">("url");
+  const [pdfParsing, setPdfParsing] = useState(false);
   
   // Form fields
   const [title, setTitle] = useState("");
@@ -25,11 +27,40 @@ export function SimplePropertyForm() {
   const [area, setArea] = useState("");
   const [bedrooms, setBedrooms] = useState("");
   const [bathrooms, setBathrooms] = useState("");
+  const [parking, setParking] = useState("");
+  const [amenitiesText, setAmenitiesText] = useState("");
   const [listingStatus, setListingStatus] = useState("borrador");
   const [images, setImages] = useState<string[]>([]);
   
   // Coords from address autocomplete
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+
+  async function handlePdfUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPdfParsing(true);
+    setError(null);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/parse-property-pdf", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al procesar PDF");
+      if (data.title)       setTitle(data.title);
+      if (data.description) setDescription(data.description);
+      if (data.price)       setPrice(data.price.toString());
+      if (data.currency)    setCurrency(data.currency);
+      if (data.property_type) setPropertyType(data.property_type as PropertyType);
+      if (data.area_m2)     setArea(data.area_m2.toString());
+      if (data.bedrooms)    setBedrooms(data.bedrooms.toString());
+      if (data.bathrooms)   setBathrooms(data.bathrooms.toString());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al procesar PDF");
+    } finally {
+      setPdfParsing(false);
+      e.target.value = "";
+    }
+  }
 
   async function handleScrape() {
     if (!scrapeUrl.trim()) return;
@@ -48,16 +79,18 @@ export function SimplePropertyForm() {
       if (!res.ok) throw new Error(data.error || "Error al extraer");
 
       // Pre-fill form
-      if (data.title) setTitle(data.title);
-      if (data.description) setDescription(data.description);
-      if (data.price) setPrice(data.price.toString());
-      if (data.currency) setCurrency(data.currency);
+      if (data.title)         setTitle(data.title);
+      if (data.description)   setDescription(data.description);
+      if (data.price)         setPrice(data.price.toString());
+      if (data.currency)      setCurrency(data.currency);
       if (data.property_type) setPropertyType(data.property_type as PropertyType);
-      if (data.area_m2) setArea(data.area_m2.toString());
-      if (data.bedrooms) setBedrooms(data.bedrooms.toString());
-      if (data.bathrooms) setBathrooms(data.bathrooms.toString());
-      if (data.address) setAddress(data.address);
-      if (data.images) setImages(data.images);
+      if (data.area_m2)       setArea(data.area_m2.toString());
+      if (data.bedrooms)      setBedrooms(data.bedrooms.toString());
+      if (data.bathrooms)     setBathrooms(data.bathrooms.toString());
+      if (data.parking)       setParking(data.parking.toString());
+      if (data.address)       setAddress(data.address);
+      if (data.images)        setImages(data.images);
+      if (data.amenities?.length) setAmenitiesText(data.amenities.join(", "));
       
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al extraer");
@@ -86,18 +119,20 @@ export function SimplePropertyForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
-          description,
-          price: price ? parseFloat(price) : null,
+          description: amenitiesText
+            ? `${description}\n\nCaracterísticas: ${amenitiesText}`.trim()
+            : description,
+          price:        price     ? parseFloat(price)    : null,
           currency,
           property_type: propertyType,
-          area_m2: area ? parseFloat(area) : null,
-          bedrooms: bedrooms ? parseInt(bedrooms) : null,
-          bathrooms: bathrooms ? parseInt(bathrooms) : null,
-          status: listingStatus,
-          address: address || null,
-          lat: coords?.lat ?? null,
-          lng: coords?.lng ?? null,
-          images: images.length > 0 ? images : null,
+          area_m2:      area      ? parseFloat(area)     : null,
+          bedrooms:     bedrooms  ? parseInt(bedrooms)   : null,
+          bathrooms:    bathrooms ? parseInt(bathrooms)  : null,
+          status:       listingStatus,
+          address:      address || null,
+          lat:          coords?.lat ?? null,
+          lng:          coords?.lng ?? null,
+          images:       images.length > 0 ? images : null,
         }),
       });
 
@@ -114,32 +149,59 @@ export function SimplePropertyForm() {
 
   return (
     <div className="flex flex-col gap-8">
-      {/* URL Scraper Section */}
+      {/* Import Section */}
       <div className="bg-[#F7F5EE] border border-[#EAE7DC] rounded-sm p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-[#FF7F11] text-lg">🔗</span>
-          <h2 className="text-[#262626] font-medium">Importar desde Century 21</h2>
+        {/* Tab switcher */}
+        <div className="flex gap-1 mb-5 bg-[#EAE7DC] rounded-sm p-1 w-fit">
+          {(["url", "pdf"] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setImportTab(tab)}
+              className="px-4 py-1.5 rounded-sm text-xs font-medium transition-all"
+              style={importTab === tab
+                ? { background: "#fff", color: "#262626", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }
+                : { color: "#6B7565" }}
+            >
+              {tab === "url" ? "🔗 Importar URL" : "📄 Subir PDF"}
+            </button>
+          ))}
         </div>
-        <p className="text-sm text-[#6B7565] mb-4">
-          Pega el link de una propiedad de Century 21 Bolivia y completa los datos automáticamente.
-        </p>
-        <div className="flex gap-3">
-          <input
-            type="url"
-            value={scrapeUrl}
-            onChange={(e) => setScrapeUrl(e.target.value)}
-            placeholder="https://c21.com.bo/v/resultados/..."
-            className="flex-1 border border-[#D8D3C8] bg-white px-4 py-3 text-sm text-[#262626] rounded-sm placeholder:text-[#ACBFA4] focus:outline-none focus:border-[#FF7F11]"
-          />
-          <Button
-            onClick={handleScrape}
-            loading={scraping}
-            disabled={!scrapeUrl.trim()}
-            variant="secondary"
-          >
-            {scraping ? "Extrayendo..." : "Extraer datos"}
-          </Button>
-        </div>
+
+        {importTab === "url" ? (
+          <>
+            <p className="text-sm text-[#6B7565] mb-4">
+              Pega el link de cualquier propiedad pública y los datos se completarán automáticamente.
+            </p>
+            <div className="flex gap-3">
+              <input
+                type="url"
+                value={scrapeUrl}
+                onChange={(e) => setScrapeUrl(e.target.value)}
+                placeholder="https://c21.com.bo/v/resultados/... o cualquier URL"
+                className="flex-1 border border-[#D8D3C8] bg-white px-4 py-3 text-sm text-[#262626] rounded-sm placeholder:text-[#ACBFA4] focus:outline-none focus:border-[#FF7F11]"
+              />
+              <Button onClick={handleScrape} loading={scraping} disabled={!scrapeUrl.trim()} variant="secondary">
+                {scraping ? "Extrayendo..." : "Extraer datos"}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-[#6B7565] mb-4">
+              Sube el PDF de la propiedad y extraeremos automáticamente precio, área, habitaciones y descripción.
+            </p>
+            <label className={`cursor-pointer flex items-center justify-center gap-3 border-2 border-dashed border-[#D8D3C8] rounded-sm p-6 text-sm text-[#6B7565] transition-colors hover:border-[#FF7F11] hover:bg-[#FFF8F2] ${pdfParsing ? "opacity-60 pointer-events-none" : ""}`}>
+              {pdfParsing ? (
+                <><div className="w-5 h-5 border-2 border-[#FF7F11] border-t-transparent rounded-full animate-spin" /> Procesando PDF...</>
+              ) : (
+                <><span className="text-2xl">📄</span> Haz clic para seleccionar el PDF de la propiedad</>
+              )}
+              <input type="file" accept=".pdf" className="hidden" onChange={handlePdfUpload} disabled={pdfParsing} />
+            </label>
+            <p className="text-xs text-[#ACBFA4] mt-2">Máximo 10 MB. Funciona mejor con PDFs de texto (no imágenes escaneadas).</p>
+          </>
+        )}
       </div>
 
       {/* Form */}
@@ -194,12 +256,23 @@ export function SimplePropertyForm() {
             <div className="mt-2">
               <p className="label-caps text-[#6B7565] mb-2">Imágenes importadas ({images.length})</p>
               <div className="flex gap-2 overflow-x-auto pb-2">
-                {images.slice(0, 5).map((img, i) => (
-                  <div key={i} className="w-20 h-20 rounded-sm overflow-hidden flex-shrink-0 border border-[#EAE7DC]">
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                {images.map((img, i) => (
+                  <div key={i} className="relative w-20 h-20 flex-shrink-0 group">
+                    <div className="w-20 h-20 rounded-sm overflow-hidden border border-[#EAE7DC]">
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setImages(images.filter((_, idx) => idx !== i))}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#262626] text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-pointer hover:bg-red-600"
+                      aria-label="Eliminar imagen"
+                    >
+                      ✕
+                    </button>
                   </div>
                 ))}
               </div>
+              <p className="text-xs text-[#6B7565] mt-1">Pasa el cursor sobre una imagen y haz clic en ✕ para eliminarla</p>
             </div>
           )}
 
@@ -254,11 +327,24 @@ export function SimplePropertyForm() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <Input label="Área m²" type="number" value={area} onChange={(e) => setArea(e.target.value)} placeholder="150" />
-            <Input label="Hab." type="number" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} placeholder="3" />
-            <Input label="Baños" type="number" value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} placeholder="2" />
+          <div className="grid grid-cols-4 gap-3">
+            <Input label="Área m²"     type="number" value={area}      onChange={(e) => setArea(e.target.value)}      placeholder="150" />
+            <Input label="Hab."        type="number" value={bedrooms}   onChange={(e) => setBedrooms(e.target.value)}   placeholder="3" />
+            <Input label="Baños"       type="number" value={bathrooms}  onChange={(e) => setBathrooms(e.target.value)}  placeholder="2" />
+            <Input label="Parking"     type="number" value={parking}    onChange={(e) => setParking(e.target.value)}    placeholder="1" />
           </div>
+
+          {amenitiesText && (
+            <div className="flex flex-col gap-1.5">
+              <label className="label-caps text-[#6B7565]">Características detectadas</label>
+              <div className="flex flex-wrap gap-1.5">
+                {amenitiesText.split(",").map(a => a.trim()).filter(Boolean).map(a => (
+                  <span key={a} className="px-2.5 py-1 bg-[#F7F5EE] border border-[#EAE7DC] text-xs text-[#6B7565] rounded-sm">{a}</span>
+                ))}
+              </div>
+              <p className="text-xs text-[#ACBFA4]">Extraídas automáticamente — se guardarán en la descripción.</p>
+            </div>
+          )}
         </div>
 
         {error && (

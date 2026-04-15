@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { HeartButton } from "@/components/property/HeartButton";
 import { ChatWidget } from "@/components/themes/realtor-v1/ChatWidget";
+import { TenantChatbot } from "@/components/themes/realtor-v1/TenantChatbot";
 import type { Listing } from "@/types/tenant";
 
 // Dynamic map to avoid SSR issues with Leaflet
@@ -506,12 +507,19 @@ export function RealtorV1Page({ listings }: RealtorV1PageProps) {
       `}</style>
 
 
-      {/* ── CHAT WIDGET ──────────────────────────────────────── */}
+      {/* ── CHAT WIDGET (WhatsApp contact) ───────────────────── */}
       <ChatWidget
         realtorName={profile.full_name ?? "Asesor Inmobiliario"}
         realtorPhone={profile.whatsapp ?? "59170000000"}
         primaryColor={primary}
         profileId={profile.id}
+      />
+
+      {/* ── AI CHATBOT (RAG-powered) ──────────────────────── */}
+      <TenantChatbot
+        slug={profile.slug ?? ""}
+        agentName={profile.full_name ?? "Asesor"}
+        primaryColor={primary}
       />
     </div>
   );

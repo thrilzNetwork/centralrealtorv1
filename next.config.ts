@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Keep pdf-parse out of the bundle so it loads from node_modules at runtime
+  // (avoids the test-file path error in serverless environments)
+  serverExternalPackages: ["pdf-parse"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "*.supabase.co" },

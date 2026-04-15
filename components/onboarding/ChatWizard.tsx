@@ -4,14 +4,20 @@ import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 
-type Step = "welcome" | "email" | "password" | "name" | "brand" | "whatsapp" | "theme" | "done";
+type Step = "welcome" | "social" | "email" | "password" | "name" | "brand" | "whatsapp" | "theme" | "google_link" | "done";
 type MessageRole = "agent" | "user";
 
 interface Message {
   id: string;
   role: MessageRole;
   content: string;
-  type?: "text" | "input-email" | "input-password" | "input-text" | "input-whatsapp" | "theme-picker";
+  type?: "text" | "input-email" | "input-password" | "input-text" | "input-whatsapp" | "input-url" | "theme-picker";
+  logoUrl?: string; // for social preview messages
+}
+
+interface SocialBrandData {
+  handle:    string;
+  avatar_url: string;
 }
 
 const THEME_OPTIONS = [
@@ -20,8 +26,9 @@ const THEME_OPTIONS = [
 
 const STEPS: Record<Step, { message: string; inputType?: Message["type"] }> = {
   welcome:  { message: "Hola 👋 Soy tu asistente de configuración. En 2 minutos tendrás tu portal inmobiliario listo. ¿Empezamos?" },
-  email:    { message: "Primero, ¿cuál es tu correo electrónico?", inputType: "input-email" },
-  password: { message: "Perfecto. Elige una contraseña segura (mínimo 8 caracteres).", inputType: "input-password" },
+  social:   { message: "Opcional: ¿cuál es tu usuario de Instagram? Lo usaré para tomar tu foto de perfil y pre-cargar tu marca. (Ej: @miagencia  — puedes omitir este paso)", inputType: "input-text" },
+  email:    { message: "¿Cuál es tu correo electrónico?", inputType: "input-email" },
+  password: { message: "Elige una contraseña segura (mínimo 8 caracteres).", inputType: "input-password" },
   name:     { message: "¿Cuál es tu nombre completo? (Aparecerá en tu portal)", inputType: "input-text" },
   brand:    { message: "¿Cómo se llama tu marca o agencia? (Ej: Inmobiliaria Sur, García Propiedades)", inputType: "input-text" },
   whatsapp: { message: "¿Cuál es tu número de WhatsApp? Los clientes lo usarán para contactarte. (Ej: +59171234567)", inputType: "input-whatsapp" },
@@ -30,30 +37,33 @@ const STEPS: Record<Step, { message: string; inputType?: Message["type"] }> = {
 };
 
 export function ChatWizard() {
-  const [step, setStep] = useState<Step>("welcome");
+  const [step, setStep]         = useState<Step>("welcome");
   const [messages, setMessages] = useState<Message[]>([
     { id: "1", role: "agent", content: STEPS.welcome.message },
   ]);
   const [inputValue, setInputValue] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isTyping,   setIsTyping]   = useState(false);
+  const [loading,    setLoading]    = useState(false);
+
+  const [socialData, setSocialData] = useState<SocialBrandData | null>(null);
 
   const [data, setData] = useState({
-    email: "", password: "", fullName: "", brandName: "", whatsapp: "", theme: "realtor-v1",
+    email: "", password: "", fullName: "", brandName: "", whatsapp: "", socialUrl: "", theme: "realtor-v1",
   });
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  function addMessage(role: MessageRole, content: string, type?: Message["type"]) {
-    setMessages((prev) => [...prev, { id: Date.now().toString() + Math.random(), role, content, type }]);
+  function addMessage(role: MessageRole, content: string, type?: Message["type"], logoUrl?: string) {
+    setMessages((prev) => [...prev, { id: Date.now().toString() + Math.random(), role, content, type, logoUrl }]);
   }
 
   async function agentReply(next: Step) {
     setIsTyping(true);
-    await new Promise((r) => setTimeout(r, 350));
+    await new Promise((r) => setTimeout(r, 380));
     setIsTyping(false);
     addMessage("agent", STEPS[next].message, STEPS[next].inputType);
     setStep(next);
@@ -61,7 +71,7 @@ export function ChatWizard() {
   }
 
   async function handleSubmit(value?: string) {
-    const val = value ?? inputValue.trim();
+    const val = (value ?? inputValue).trim();
     if (!val) return;
 
     addMessage("user", step === "password" ? "••••••••" : val);
@@ -69,9 +79,42 @@ export function ChatWizard() {
 
     switch (step) {
       case "welcome":
-        agentReply("email");
+        agentReply("social");
         break;
 
+      // ── Social (optional) — no server fetch, just parse handle ─────────
+      case "social": {
+        // Accept: @ales23 | ales23 | https://instagram.com/ales23/
+        const handle = val
+          .replace(/https?:\/\/(www\.)?instagram\.com\//i, "")
+          .replace(/^@/, "")
+          .replace(/\/$/, "")
+          .split("?")[0]
+          .trim();
+
+        if (handle) {
+          const avatarUrl = `https://unavatar.io/instagram/${handle}`;
+          setSocialData({ handle, avatar_url: avatarUrl });
+          setData((d) => ({ ...d, socialUrl: handle }));
+
+          setIsTyping(true);
+          await new Promise((r) => setTimeout(r, 500));
+          setIsTyping(false);
+
+          addMessage(
+            "agent",
+            `✓ Guardé tu usuario @${handle}. Tu foto de perfil se usará en tu portal. Continuemos con tu cuenta.`,
+            undefined,
+            avatarUrl,
+          );
+          await new Promise((r) => setTimeout(r, 400));
+        }
+
+        agentReply("email");
+        break;
+      }
+
+      // ── Email ────────────────────────────────────────────────────────────
       case "email": {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
         if (!emailRegex.test(val)) {
@@ -125,44 +168,56 @@ export function ChatWizard() {
     setLoading(true);
 
     try {
-      // ── Step 1: Create account server-side (no client rate limits) ──
+      // ── Step 1: Create account ────────────────────────────────────────────
       const createRes = await fetch("/api/onboarding/create-account", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: finalData.email,
-          password: finalData.password,
-          fullName: finalData.fullName,
+          email:     finalData.email,
+          password:  finalData.password,
+          fullName:  finalData.fullName,
           brandName: finalData.brandName,
-          whatsapp: finalData.whatsapp,
-          theme: finalData.theme,
+          whatsapp:  finalData.whatsapp,
+          theme:     finalData.theme,
         }),
       });
 
       const createJson = await createRes.json().catch(() => ({}));
+      if (!createRes.ok) throw new Error(createJson.error ?? "No se pudo crear la cuenta. Intenta de nuevo.");
 
-      if (!createRes.ok) {
-        throw new Error(createJson.error ?? "No se pudo crear la cuenta. Intenta de nuevo.");
-      }
-
-      // ── Step 2: Sign in so the browser gets a session cookie ────────
+      // ── Step 2: Sign in ────────────────────────────────────────────────────
       const supabase = createClient();
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: finalData.email,
+        email:    finalData.email,
         password: finalData.password,
       });
 
       if (signInError) {
-        // Account was created, just couldn't auto-login — send to login page
         addMessage("agent", "¡Tu portal fue creado! Ingresa con tu correo y contraseña en /login.");
         await new Promise((r) => setTimeout(r, 2000));
         window.location.href = "/login";
         return;
       }
 
-      // ── Step 3: Redirect to dashboard ───────────────────────────────
-      await new Promise((r) => setTimeout(r, 400));
-      window.location.href = "/dashboard?bienvenido=1";
+      // ── Step 3: Apply social branding if we have it ───────────────────────
+      if (socialData?.avatar_url) {
+        try {
+          await fetch("/api/profile", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ logo_url: socialData.avatar_url }),
+          });
+        } catch {
+          // Optional — silently ignore
+        }
+      }
+
+      // ── Step 4: Link Google Account (Optional) ───────────────────────────
+      addMessage("agent", "🎉 ¡Todo listo! Tu portal está activo. Antes de entrar, ¿quieres conectar tu cuenta de Google? Esto nos permitirá sincronizar tu calendario y enviar confirmaciones automáticas a tus clientes.");
+
+      setStep("google_link");
+      setLoading(false);
+      return;
 
     } catch (err) {
       console.error("Onboarding error:", err);
@@ -174,10 +229,14 @@ export function ChatWizard() {
     }
   }
 
-  const currentStepDef = STEPS[step];
-  const isAwaitingInput = step !== "welcome" && step !== "done";
-  const showInput = isAwaitingInput && currentStepDef.inputType !== "theme-picker";
-  const showThemePicker = step === "theme";
+  const isAwaitingInput  = step !== "welcome" && step !== "done" && step !== "google_link";
+  const showInput        = isAwaitingInput && STEPS[step].inputType !== "theme-picker";
+  const showThemePicker  = step === "theme";
+
+  // Step counter — exclude "done" from total
+  const stepKeys = Object.keys(STEPS).filter(s => s !== "done") as Step[];
+  const stepNum  = stepKeys.indexOf(step) + 1;
+  const stepTotal = stepKeys.length;
 
   return (
     <div className="min-h-dvh bg-[#F7F5EE] flex flex-col">
@@ -192,9 +251,7 @@ export function ChatWizard() {
         </div>
         <div className="ml-auto">
           <span className="label-caps text-[#6B7565]">
-            {step === "done"
-              ? "Completado"
-              : `Paso ${Object.keys(STEPS).indexOf(step) + 1} de ${Object.keys(STEPS).length - 1}`}
+            {step === "done" ? "Completado" : `Paso ${stepNum} de ${stepTotal}`}
           </span>
         </div>
       </header>
@@ -203,24 +260,44 @@ export function ChatWizard() {
       <div className="flex-1 overflow-y-auto px-4 py-6 max-w-2xl mx-auto w-full">
         <div className="flex flex-col gap-4">
           {messages.map((msg, i) => (
-            <div key={msg.id} className="flex gap-3 animate-fade-up" style={{ animationDelay: `${i * 30}ms` }}>
-              {msg.role === "agent" && (
+            <div
+              key={msg.id}
+              className={`flex gap-3 animate-fade-up ${msg.role === "user" ? "flex-row-reverse" : ""}`}
+              style={{ animationDelay: `${i * 30}ms` }}
+            >
+              {/* Avatar */}
+              {msg.role === "agent" ? (
                 <div className="w-7 h-7 rounded-full bg-[#262626] flex-shrink-0 flex items-center justify-center mt-0.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#FF7F11]" />
                 </div>
-              )}
-              <div
-                className={`max-w-sm px-4 py-3 rounded-sm text-sm leading-relaxed ${
-                  msg.role === "agent"
-                    ? "bg-white border border-[#EAE7DC] text-[#262626]"
-                    : "bg-[#FF7F11] text-white ml-auto"
-                }`}
-              >
-                {msg.content}
-              </div>
-              {msg.role === "user" && (
+              ) : (
                 <div className="w-7 h-7 rounded-full bg-[#ACBFA4] flex-shrink-0 mt-0.5" />
               )}
+
+              <div className="flex flex-col gap-2 max-w-sm">
+                {/* Bubble */}
+                <div className={`px-4 py-3 rounded-sm text-sm leading-relaxed whitespace-pre-line ${
+                  msg.role === "agent"
+                    ? "bg-white border border-[#EAE7DC] text-[#262626]"
+                    : "bg-[#FF7F11] text-white"
+                }`}>
+                  {msg.content}
+                </div>
+
+                {/* Social preview logo */}
+                {msg.logoUrl && (
+                  <div className="flex items-center gap-3 bg-white border border-[#EAE7DC] rounded-sm px-3 py-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={msg.logoUrl}
+                      alt="Foto de perfil"
+                      className="w-12 h-12 rounded-full object-cover border border-[#EAE7DC]"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                    />
+                    <p className="text-xs text-[#6B7565]">Foto de perfil importada</p>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
 
@@ -260,9 +337,29 @@ export function ChatWizard() {
             </div>
           )}
 
+          {/* Google Link Step */}
+          {step === "google_link" && !isTyping && (
+            <div className="flex flex-col gap-3 pl-10 animate-fade-up">
+              <Button onClick={() => window.location.href = "/api/auth/google-link"} size="sm">
+                Conectar Google
+              </Button>
+              <button
+                onClick={() => {
+                  addMessage("user", "Omitir por ahora");
+                  setStep("done");
+                  addMessage("agent", STEPS.done.message);
+                  window.location.href = "/dashboard?bienvenido=1";
+                }}
+                className="text-left text-xs text-[#ACBFA4] hover:text-[#6B7565] transition-colors"
+              >
+                Omitir por ahora →
+              </button>
+            </div>
+          )}
+
           {/* Welcome CTA */}
           {step === "welcome" && !isTyping && (
-            <div className="pl-10 animate-fade-up delay-300">
+            <div className="pl-10 animate-fade-up">
               <Button onClick={() => handleSubmit("sí")} size="sm">Sí, empecemos</Button>
             </div>
           )}
@@ -274,17 +371,60 @@ export function ChatWizard() {
       {/* Input bar */}
       {showInput && !isTyping && (
         <div className="border-t border-[#EAE7DC] bg-white px-4 py-4">
-          <div className="max-w-2xl mx-auto flex gap-3">
-            <input
-              type={step === "password" ? "password" : step === "email" ? "email" : step === "whatsapp" ? "tel" : "text"}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-              placeholder={step === "email" ? "tu@correo.com" : step === "password" ? "Mínimo 8 caracteres" : step === "whatsapp" ? "+591 7xxxxxxx" : "Escribe aquí..."}
-              className="flex-1 border border-[#D8D3C8] rounded-sm px-4 py-3 text-sm text-[#262626] placeholder:text-[#ACBFA4] focus:outline-none focus:border-[#FF7F11] focus:ring-1 focus:ring-[#FF7F11]/20 transition-colors bg-[#F7F5EE]"
-              autoFocus
-            />
-            <Button onClick={() => handleSubmit()} disabled={!inputValue.trim()} loading={loading}>Enviar</Button>
+          <div className="max-w-2xl mx-auto flex flex-col gap-2">
+            <div className="flex gap-3">
+              <input
+                type={
+                  step === "password" ? "password" :
+                  step === "email"    ? "email"    :
+                  step === "whatsapp" ? "tel"       :
+                  "text"
+                }
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && !loading && handleSubmit()}
+                placeholder={
+                  step === "email"    ? "tu@correo.com"               :
+                  step === "password" ? "Mínimo 8 caracteres"          :
+                  step === "whatsapp" ? "+591 7xxxxxxx"                :
+                  step === "social"   ? "@tuusuario" :
+                  step === "name"     ? (data.fullName  || "Tu nombre completo")  :
+                  step === "brand"    ? (data.brandName || "Tu marca o agencia")  :
+                  "Escribe aquí..."
+                }
+                defaultValue={
+                  step === "name"  && data.fullName  ? data.fullName  :
+                  step === "brand" && data.brandName ? data.brandName :
+                  undefined
+                }
+                className="flex-1 border border-[#D8D3C8] rounded-sm px-4 py-3 text-sm text-[#262626] placeholder:text-[#ACBFA4] focus:outline-none focus:border-[#FF7F11] focus:ring-1 focus:ring-[#FF7F11]/20 transition-colors bg-[#F7F5EE]"
+                autoFocus
+              />
+              <Button onClick={() => handleSubmit()} disabled={!inputValue.trim() || loading} loading={loading}>
+                Enviar
+              </Button>
+            </div>
+
+            {/* Social step: skip link */}
+            {step === "social" && (
+              <button
+                type="button"
+                onClick={() => {
+                  addMessage("user", "Omitir");
+                  agentReply("email");
+                }}
+                className="text-xs text-[#ACBFA4] hover:text-[#6B7565] transition-colors text-left"
+              >
+                Omitir este paso →
+              </button>
+            )}
+
+            {/* Name/brand step: hint when pre-filled from social */}
+            {(step === "name" || step === "brand") && data[step === "name" ? "fullName" : "brandName"] && (
+              <p className="text-xs text-[#ACBFA4]">
+                Pre-llenado desde tu perfil social. Edita si deseas cambiarlo.
+              </p>
+            )}
           </div>
         </div>
       )}

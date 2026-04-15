@@ -1,0 +1,181 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/Button";
+
+type Tone = "agresivo" | "lujo" | "empatico";
+type Platform = "instagram" | "facebook" | "tiktok";
+
+const CHAR_LIMITS: Record<Platform, number> = {
+  instagram: 2200,
+  facebook: 63206,
+  tiktok: 150,
+};
+
+const TONE_LABELS: Record<Tone, string> = {
+  agresivo: "Agresivo",
+  lujo: "Lujo",
+  empatico: "Empático",
+};
+
+const PLATFORM_LABELS: Record<Platform, string> = {
+  instagram: "Instagram",
+  facebook: "Facebook",
+  tiktok: "TikTok",
+};
+
+export function CMDigitalPanel({ listingId }: { listingId: string }) {
+  const [tone, setTone] = useState<Tone>("lujo");
+  const [platform, setPlatform] = useState<Platform>("instagram");
+  const [copy, setCopy] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const charLimit = CHAR_LIMITS[platform];
+  const isOverLimit = copy.length > charLimit;
+
+  async function handleGenerate() {
+    setGenerating(true);
+    setCopy("");
+    try {
+      const res = await fetch("/api/cm/generate-post", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listing_id: listingId, tone, platform }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al generar");
+      setCopy(data.copy ?? "");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Error desconocido");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  async function handleCopy() {
+    await navigator.clipboard.writeText(copy);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div className="mt-2 bg-white border border-[#EAE7DC] rounded-sm p-6 flex flex-col gap-5">
+      <div className="border-b border-[#EAE7DC] pb-3 flex items-center justify-between">
+        <div>
+          <h2
+            className="text-[#262626]"
+            style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: "1.25rem", fontWeight: 500 }}
+          >
+            CM Digital
+          </h2>
+          <p className="text-xs text-[#6B7565] mt-0.5">
+            Genera una publicación optimizada para redes sociales con IA
+          </p>
+        </div>
+        <span className="inline-flex items-center px-2 py-0.5 bg-[#FF7F11]/10 text-[#FF7F11] text-xs font-medium rounded-sm border border-[#FF7F11]/20">
+          IA
+        </span>
+      </div>
+
+      {/* Tone selector */}
+      <div>
+        <p className="text-xs font-medium text-[#6B7565] uppercase tracking-widest mb-2">Tono</p>
+        <div className="flex gap-2">
+          {(Object.keys(TONE_LABELS) as Tone[]).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTone(t)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-sm border transition-colors ${
+                tone === t
+                  ? "bg-[#262626] text-white border-[#262626]"
+                  : "bg-white text-[#6B7565] border-[#EAE7DC] hover:border-[#262626]"
+              }`}
+            >
+              {TONE_LABELS[t]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Platform tabs */}
+      <div>
+        <p className="text-xs font-medium text-[#6B7565] uppercase tracking-widest mb-2">Plataforma</p>
+        <div className="flex gap-2">
+          {(Object.keys(PLATFORM_LABELS) as Platform[]).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setPlatform(p)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-sm border transition-colors ${
+                platform === p
+                  ? "bg-[#FF7F11] text-white border-[#FF7F11]"
+                  : "bg-white text-[#6B7565] border-[#EAE7DC] hover:border-[#FF7F11]"
+              }`}
+            >
+              {PLATFORM_LABELS[p]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Generate button */}
+      <Button
+        type="button"
+        onClick={handleGenerate}
+        loading={generating}
+        size="sm"
+        className="self-start"
+      >
+        {generating ? "Generando..." : "Generar copy"}
+      </Button>
+
+      {/* Output */}
+      {copy && (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium text-[#6B7565] uppercase tracking-widest">
+              Resultado
+            </p>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs ${isOverLimit ? "text-red-500 font-medium" : "text-[#6B7565]"}`}>
+                {copy.length}/{charLimit} chars
+              </span>
+              {isOverLimit && (
+                <span className="text-xs text-red-500">⚠ Excede el límite de {PLATFORM_LABELS[platform]}</span>
+              )}
+            </div>
+          </div>
+          <textarea
+            value={copy}
+            onChange={(e) => setCopy(e.target.value)}
+            rows={8}
+            className="w-full text-sm text-[#262626] bg-[#F7F5EE] border border-[#EAE7DC] rounded-sm p-3 resize-y focus:outline-none focus:border-[#FF7F11] transition-colors leading-relaxed"
+          />
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="self-end flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#F7F5EE] border border-[#EAE7DC] rounded-sm hover:bg-[#EAE7DC] transition-colors"
+          >
+            {copied ? (
+              <>
+                <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Copiado
+              </>
+            ) : (
+              <>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Copiar
+              </>
+            )}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

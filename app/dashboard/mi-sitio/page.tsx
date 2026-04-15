@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SiteCustomizerForm } from "@/components/forms/SiteCustomizerForm";
+import { BrandVoiceUpload } from "@/components/dashboard/BrandVoiceUpload";
+import { KnowledgeBaseUpload } from "@/components/dashboard/KnowledgeBaseUpload";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Mi Sitio — Dashboard" };
@@ -55,6 +57,10 @@ export default async function MiSitioPage() {
       )}
 
       <SiteCustomizerForm settings={profile as Parameters<typeof SiteCustomizerForm>[0]["settings"]} />
+
+      <BrandVoiceUpload initialVoice={profile?.brand_voice} />
+
+      <KnowledgeBaseUpload initialDocs={profile?.kb_documents as Parameters<typeof KnowledgeBaseUpload>[0]["initialDocs"]} />
     </div>
   );
 }

@@ -83,6 +83,11 @@ export interface Database {
           broker_name: string | null;
           broker_logo_url: string | null;
           broker_agent_code: string | null;
+          kb_documents: unknown[];
+          brand_voice: string | null;
+          chatbot_config: Record<string, unknown>;
+          google_refresh_token: string | null;
+          google_calendar_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -111,6 +116,11 @@ export interface Database {
           broker_name?: string | null;
           broker_logo_url?: string | null;
           broker_agent_code?: string | null;
+          kb_documents?: unknown[];
+          brand_voice?: string | null;
+          chatbot_config?: Record<string, unknown>;
+          google_refresh_token?: string | null;
+          google_calendar_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -139,6 +149,11 @@ export interface Database {
           broker_name?: string | null;
           broker_logo_url?: string | null;
           broker_agent_code?: string | null;
+          kb_documents?: unknown[];
+          brand_voice?: string | null;
+          chatbot_config?: Record<string, unknown>;
+          google_refresh_token?: string | null;
+          google_calendar_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

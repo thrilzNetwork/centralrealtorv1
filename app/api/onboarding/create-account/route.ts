@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ── 2. Generate unique slug ─────────────────────────────────────
-    const baseSlug = slugify(brandName || fullName || email.split("@")[0]);
+    const baseSlug = slugify(fullName || brandName || email.split("@")[0]);
     let finalSlug = baseSlug;
     let counter = 0;
 

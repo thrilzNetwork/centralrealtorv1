@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { DomainManager } from "@/components/forms/DomainManagerForm";
+import { DomainSearch } from "@/components/forms/DomainSearch";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Dominios — Dashboard" };
@@ -10,10 +11,19 @@ export default async function DominiosPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [profileRes, domainsRes] = await Promise.all([
-    supabase.from("profiles").select("custom_domain, slug, primary_color").eq("id", user.id).single(),
+  const [profileRes, domainsRes, orgRes] = await Promise.all([
+    supabase.from("profiles").select("custom_domain, slug, primary_color, organization_id").eq("id", user.id).single(),
     supabase.from("domain_mappings").select("*").eq("profile_id", user.id),
+    supabase.from("profiles").select("organization_id").eq("id", user.id).single(),
   ]);
+
+  // Check if user is on premium plan
+  let isPremium = false;
+  if (orgRes.data?.organization_id) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: org } = await (supabase as any).from("organizations").select("plan").eq("id", orgRes.data.organization_id).single();
+    isPremium = org?.plan === "broker" || org?.plan === "profesional";
+  }
 
   return (
     <div className="animate-fade-up max-w-2xl">
@@ -30,11 +40,16 @@ export default async function DominiosPage() {
           <strong className="text-[#262626]"> tumarca.com</strong> en lugar de un subdominio.
         </p>
       </div>
-      <DomainManager
-        currentSlug={profileRes.data?.slug ?? ""}
-        currentCustomDomain={profileRes.data?.custom_domain}
-        domains={domainsRes.data ?? []}
-      />
+      <DomainSearch isPremium={isPremium} />
+
+      <div className="mt-10 pt-8 border-t border-[#EAE7DC]">
+        <p className="label-caps text-[#6B7565] mb-6">Ya tienes un dominio — conéctalo aquí ↓</p>
+        <DomainManager
+          currentSlug={profileRes.data?.slug ?? ""}
+          currentCustomDomain={profileRes.data?.custom_domain}
+          domains={domainsRes.data ?? []}
+        />
+      </div>
     </div>
   );
 }

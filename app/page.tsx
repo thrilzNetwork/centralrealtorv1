@@ -5,8 +5,9 @@ import { resolveBySlug } from "@/lib/tenant/resolver";
 import { TenantProvider } from "@/components/themes/TenantContext";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { RealtorV1Page } from "@/components/themes/realtor-v1/RealtorV1Page";
-import { ArrowRight, MapPin, Layout, Target, Users } from "lucide-react";
+import { ArrowRight, MapPin, Layout, Target, Users, Play } from "lucide-react";
 import { LandingChatbot } from "@/components/LandingChatbot";
+import { BrandLogoBar } from "@/components/landing/BrandLogoBar";
 import type { Metadata } from "next";
 
 // ─── Metadata ─────────────────────────────────────────────────
@@ -78,173 +79,187 @@ function MarketingPage() {
   return (
     <div className="min-h-screen bg-[#F7F5EE] font-sans">
       {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#F7F5EE]/90 backdrop-blur-md border-b border-[#EAE7DC]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#F7F5EE]/95 backdrop-blur-sm border-b border-[#EAE7DC]">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8 flex items-center justify-between h-[4.5rem]">
           <div className="flex items-center gap-3">
-            <div className="w-6 h-6 bg-[#FF7F11] rounded-sm" />
-            <span className="text-[#262626] font-serif text-xl font-medium">Central Bolivia</span>
+            <div className="w-5 h-5 bg-[#FF7F11] rounded-sm" />
+            <span className="text-[#262626] font-serif text-lg tracking-tight">Central Bolivia</span>
           </div>
-          <div className="flex items-center gap-6">
-            <Link href="/login" className="label-caps text-[#6B7565] hover:text-[#262626] transition-colors hidden sm:block">
+          <div className="flex items-center gap-8">
+            <Link href="/login" className="label-caps text-[#6B7565] hover:text-[#262626] transition-colors duration-150">
               Iniciar sesión
-            </Link>
-            <Link href="/bienvenido" className="px-5 py-2 bg-[#262626] text-white text-sm font-medium rounded-sm hover:bg-[#323232] transition-colors">
-              Crear portal gratis
             </Link>
           </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="pt-28 pb-14 max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="max-w-4xl">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-5 h-px bg-[#FF7F11]" />
-            <span className="label-caps text-[#6B7565]">PropTech para Bolivia</span>
+      <section className="pt-36 pb-20 max-w-6xl mx-auto px-6 sm:px-8">
+        <div className="max-w-5xl">
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-8 h-px bg-[#FF7F11]" />
+            <span className="label-caps text-[#6B7565] tracking-[0.2em]">PropTech · Bolivia</span>
           </div>
 
           <h1
-            className="text-[#262626] mb-6 font-serif leading-[1.02] tracking-tight"
-            style={{ fontSize: "clamp(3rem, 6.5vw, 6.5rem)" }}
+            className="text-[#262626] font-serif leading-[0.97] mb-8"
+            style={{ fontSize: "clamp(4rem, 9vw, 9.5rem)", letterSpacing: "-0.035em", fontWeight: 300 }}
           >
-            Tu agente digital<br />
-            que trabaja<br />
-            <em className="text-[#FF7F11] not-italic">las 24 horas.</em>
+            Tu agente<br />
+            digital que<br />
+            <em style={{ color: "#FF7F11", fontStyle: "normal" }}>trabaja 24h.</em>
           </h1>
 
-          <p className="text-[#6B7565] text-xl leading-relaxed max-w-2xl mb-6">
-            Mientras duermes, tu portal recibe visitas, captura leads y muestra tus propiedades en el mapa. Todo automatizado — tú solo cierras los negocios.
+          <p className="text-[#6B7565] leading-relaxed max-w-xl mb-12" style={{ fontSize: "1.2rem" }}>
+            Mientras duermes, tu portal captura leads, muestra propiedades en el mapa y trabaja por ti — tú solo cierras los negocios.
           </p>
 
-          {/* Value pills */}
-          <div className="flex flex-wrap gap-2 mb-10">
-            {["Portal con tu marca", "Mapa interactivo", "Leads en WhatsApp", "Sin código"].map((p) => (
-              <span key={p} className="px-3 py-1 bg-white border border-[#EAE7DC] rounded-full text-sm text-[#6B7565]">
-                {p}
-              </span>
-            ))}
-          </div>
-
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <Link
               href="/bienvenido"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#FF7F11] text-white font-medium rounded-sm hover:bg-[#CC6500] transition-all active:scale-[0.98] shadow-lg shadow-[#FF7F11]/20"
+              className="inline-flex items-center gap-2.5 px-8 py-4 bg-[#FF7F11] text-white font-medium rounded-sm hover:bg-[#CC6500] transition-colors duration-200 active:scale-[0.98] cursor-pointer"
+              style={{ fontSize: "0.9rem", letterSpacing: "0.02em" }}
             >
               Activar mi portal gratis
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 px-8 py-4 border border-[#D8D3C8] text-[#262626] font-medium rounded-sm hover:bg-white transition-all"
+            <a
+              href="#demo"
+              className="inline-flex items-center gap-2.5 px-8 py-4 border border-[#D8D3C8] text-[#262626] font-medium rounded-sm hover:border-[#262626] hover:bg-white transition-all duration-200 cursor-pointer"
+              style={{ fontSize: "0.9rem" }}
             >
-              Ya tengo cuenta
-            </Link>
+              <Play className="w-3.5 h-3.5 fill-current" />
+              Ver demo
+            </a>
           </div>
-          <p className="text-xs text-[#ACBFA4] mt-5">
-            3 días de demo gratuita · Sin tarjeta de crédito · Desde $29/mo
+          <p className="text-xs text-[#ACBFA4] mt-5 tracking-wide">
+            3 días gratuitos · Sin tarjeta de crédito · Desde $49/mes
           </p>
         </div>
 
         {/* Stats */}
-        <div className="mt-12 grid grid-cols-3 gap-8 max-w-md">
+        <div className="mt-20 flex flex-wrap gap-16">
           {STATS.map((s) => (
-            <div key={s.label}>
-              <p className="text-4xl font-light text-[#FF7F11] font-serif">{s.n}</p>
-              <p className="label-caps text-[#6B7565] mt-2">{s.label}</p>
+            <div key={s.label} className="flex flex-col">
+              <span
+                className="font-serif text-[#FF7F11] leading-none mb-1"
+                style={{ fontSize: "clamp(2.5rem, 4vw, 4rem)", fontWeight: 300 }}
+              >{s.n}</span>
+              <span className="label-caps text-[#ACBFA4]">{s.label}</span>
             </div>
           ))}
         </div>
       </section>
 
       {/* Social proof bar */}
-      <div className="border-y border-[#EAE7DC] bg-white py-5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-center gap-8 text-sm text-[#6B7565]">
-          {["Century 21", "Re/Max", "Coldwell Banker", "Keller Williams", "ERA", "Independientes"].map((b) => (
-            <span key={b} className="label-caps opacity-60">{b}</span>
-          ))}
-        </div>
-      </div>
+      <BrandLogoBar />
 
       {/* Problem / Solution */}
-      <section className="py-16 max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <section className="py-24 max-w-6xl mx-auto px-6 sm:px-8">
+        <div className="grid lg:grid-cols-2 gap-20 items-center">
           <div>
-            <span className="label-caps text-[#6B7565]">El problema</span>
-            <h2 className="text-[#262626] mt-3 mb-6 font-serif leading-tight" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+            <span className="label-caps text-[#ACBFA4] tracking-[0.2em]">El problema</span>
+            <h2
+              className="text-[#262626] mt-4 mb-10 font-serif leading-[1.05]"
+              style={{ fontSize: "clamp(2.2rem, 4vw, 3.5rem)", fontWeight: 300, letterSpacing: "-0.025em" }}
+            >
               Los mejores agentes<br />pierden clientes<br />
-              <em className="text-[#FF7F11] not-italic">por no estar disponibles.</em>
+              <em style={{ color: "#FF7F11", fontStyle: "normal" }}>por no estar disponibles.</em>
             </h2>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col divide-y divide-[#EAE7DC]">
               {[
-                { pain: "Un comprador visita tu portal a las 11pm — no hay nadie.", fix: "Tu portal captura sus datos y te avisa al instante." },
-                { pain: "Tus propiedades son difíciles de ubicar sin un mapa.", fix: "Cada propiedad aparece como pin en el mapa interactivo." },
-                { pain: "Tu presencia digital no refleja tu nivel profesional.", fix: "Portal con tu logo, colores y dominio desde el día uno." },
+                { pain: "Un comprador visita tu portal a las 11pm — no hay nadie.", fix: "Tu portal captura sus datos y te avisa al instante por WhatsApp." },
+                { pain: "Tus propiedades son difíciles de ubicar sin un mapa.", fix: "Cada propiedad aparece como pin en el mapa interactivo de tu portal." },
+                { pain: "Tu presencia digital no refleja tu nivel profesional.", fix: "Logo, colores y dominio propio — listo en 2 minutos, sin código." },
               ].map((item, i) => (
-                <div key={i} className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-[#FF7F11]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-[#FF7F11] text-xs font-bold">{i + 1}</span>
-                  </div>
+                <div key={i} className="py-5 flex gap-5">
+                  <span
+                    className="font-serif text-[#FF7F11] flex-shrink-0 leading-none mt-0.5"
+                    style={{ fontSize: "1.5rem", fontWeight: 300 }}
+                  >0{i + 1}</span>
                   <div>
-                    <p className="text-sm text-[#ACBFA4] line-through mb-0.5">{item.pain}</p>
-                    <p className="text-sm text-[#262626] font-medium">{item.fix}</p>
+                    <p className="text-sm text-[#ACBFA4] line-through mb-1.5">{item.pain}</p>
+                    <p className="text-sm text-[#262626] leading-relaxed">{item.fix}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
+
           {/* Mock portal preview */}
-          <div className="bg-[#262626] rounded-sm p-6 shadow-2xl">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-3 h-3 rounded-full bg-red-400/60" />
-              <div className="w-3 h-3 rounded-full bg-yellow-400/60" />
-              <div className="w-3 h-3 rounded-full bg-green-400/60" />
-              <div className="flex-1 bg-white/5 rounded-sm h-5 mx-2 flex items-center px-3">
-                <span className="text-white/30 text-xs">tuagencia.centralbolivia.com</span>
+          <div className="bg-[#1C1C1C] rounded-sm p-5 shadow-2xl shadow-black/20">
+            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/5">
+              <div className="flex gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-white/15" />
+                <div className="w-2.5 h-2.5 rounded-full bg-white/15" />
+                <div className="w-2.5 h-2.5 rounded-full bg-white/15" />
+              </div>
+              <div className="flex-1 bg-white/5 rounded h-5 mx-2 flex items-center px-3">
+                <span className="text-white/25 text-[10px] tracking-wide">tuagencia.centralbolivia.com</span>
               </div>
             </div>
-            <div className="bg-[#1a1a1a] rounded-sm overflow-hidden">
-              <div className="h-24 bg-gradient-to-r from-[#FF7F11]/20 to-[#262626] flex items-end p-4">
+            <div className="bg-[#141414] rounded-sm overflow-hidden">
+              <div className="h-20 bg-gradient-to-br from-[#FF7F11]/15 via-transparent to-transparent flex items-end p-4">
                 <div>
-                  <div className="h-2 w-24 bg-white/20 rounded mb-1" />
-                  <div className="h-4 w-36 bg-white/40 rounded" />
+                  <div className="h-1.5 w-20 bg-white/15 rounded mb-2" />
+                  <div className="h-3 w-32 bg-white/30 rounded" />
                 </div>
               </div>
-              <div className="p-4 grid grid-cols-2 gap-3">
+              <div className="p-3 grid grid-cols-2 gap-2.5">
                 {[1, 2, 3, 4].map((n) => (
-                  <div key={n} className="bg-white/5 rounded-sm overflow-hidden">
-                    <div className="h-16 bg-white/10" />
-                    <div className="p-2">
-                      <div className="h-2 w-3/4 bg-white/20 rounded mb-1" />
-                      <div className="h-2 w-1/2 bg-[#FF7F11]/40 rounded" />
+                  <div key={n} className="bg-white/4 rounded-sm overflow-hidden">
+                    <div className="h-14 bg-white/8" />
+                    <div className="p-2.5">
+                      <div className="h-1.5 w-3/4 bg-white/15 rounded mb-1.5" />
+                      <div className="h-1.5 w-1/2 bg-[#FF7F11]/50 rounded" />
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="mt-4 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-white/40 text-xs">3 visitantes ahora mismo</span>
+            <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                <span className="text-white/30 text-xs">3 visitantes activos</span>
+              </div>
+              <span className="text-[#FF7F11]/60 text-xs font-mono">LIVE</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section className="bg-[#262626] py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="mb-10">
-            <span className="label-caps text-[#ACBFA4]">Funcionalidades</span>
-            <h2 className="text-white mt-3 font-serif leading-tight tracking-tight" style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)" }}>
-              Todo lo que necesita<br />
-              <em className="text-[#FF7F11] not-italic">un agente moderno.</em>
-            </h2>
+      <section className="bg-[#1C1C1C] py-24">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-6">
+            <div>
+              <span className="label-caps text-[#ACBFA4]/60 tracking-[0.2em]">Funcionalidades</span>
+              <h2
+                className="text-white mt-4 font-serif leading-[1.05]"
+                style={{ fontSize: "clamp(2.2rem, 4.5vw, 4rem)", fontWeight: 300, letterSpacing: "-0.025em" }}
+              >
+                Todo lo que necesita<br />
+                <em style={{ color: "#FF7F11", fontStyle: "normal" }}>un agente moderno.</em>
+              </h2>
+            </div>
+            <Link
+              href="/bienvenido"
+              className="inline-flex items-center gap-2 label-caps text-[#FF7F11] hover:gap-3 transition-all duration-200 whitespace-nowrap cursor-pointer"
+            >
+              Crear mi portal <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-white/5 rounded-sm overflow-hidden">
             {FEATURES.map((f) => (
-              <div key={f.title} className="border border-white/8 rounded-sm p-6 hover:border-[#FF7F11]/50 hover:bg-white/2 transition-all duration-200">
-                <span className="text-[#FF7F11] block mb-4">{f.icon}</span>
-                <h3 className="text-white font-medium mb-2">{f.title}</h3>
-                <p className="text-[#6B7565] text-sm leading-relaxed">{f.desc}</p>
+              <div
+                key={f.title}
+                className="bg-[#1C1C1C] p-8 hover:bg-white/3 transition-colors duration-200 cursor-default group"
+              >
+                <div className="w-10 h-10 rounded-sm bg-[#FF7F11]/10 flex items-center justify-center mb-6 group-hover:bg-[#FF7F11]/20 transition-colors duration-200">
+                  <span className="text-[#FF7F11]">{f.icon}</span>
+                </div>
+                <h3 className="text-white font-medium mb-3 text-sm tracking-wide">{f.title}</h3>
+                <p className="text-white/35 text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -252,151 +267,183 @@ function MarketingPage() {
       </section>
 
       {/* How it works */}
-      <section className="py-16 max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="mb-10">
-          <span className="label-caps text-[#6B7565]">Proceso</span>
-          <h2 className="text-[#262626] mt-3 font-serif" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-            De cero a portal en 3 pasos
+      <section className="py-24 max-w-6xl mx-auto px-6 sm:px-8">
+        <div className="mb-16">
+          <span className="label-caps text-[#ACBFA4] tracking-[0.2em]">Proceso</span>
+          <h2
+            className="text-[#262626] mt-4 font-serif"
+            style={{ fontSize: "clamp(2.2rem, 4vw, 3.5rem)", fontWeight: 300, letterSpacing: "-0.025em" }}
+          >
+            De cero a portal<br />en 3 pasos.
           </h2>
         </div>
-        <div className="grid sm:grid-cols-3 gap-10">
+        <div className="grid sm:grid-cols-3 gap-0 divide-y sm:divide-y-0 sm:divide-x divide-[#EAE7DC]">
           {[
-            { step: "01", title: "Crea tu cuenta", desc: "El asistente conversacional configura tu portal en 2 minutos. Sin formularios largos, sin código." },
-            { step: "02", title: "Agrega propiedades", desc: "Sube fotos, describe el inmueble y asigna coordenadas. Aparece en el mapa de tu portal al instante." },
-            { step: "03", title: "Trabaja 24/7", desc: "Tu portal captura leads mientras duermes. Cada lead llega a tu WhatsApp con nombre, propiedad y contacto." },
+            { step: "01", title: "Crea tu cuenta", desc: "El asistente conversacional configura tu portal en 2 minutos. Sin formularios, sin código." },
+            { step: "02", title: "Agrega propiedades", desc: "Sube fotos, describe el inmueble y geolocaliza. Aparece en el mapa de tu portal al instante." },
+            { step: "03", title: "Trabaja 24/7", desc: "Tu portal captura leads mientras duermes. Cada lead llega a tu WhatsApp con contacto directo." },
           ].map((item) => (
-            <div key={item.step} className="flex gap-5">
-              <div className="w-12 h-12 rounded-sm flex items-center justify-center flex-shrink-0 mt-1 bg-[#FF7F11]/10 border border-[#FF7F11]/20">
-                <span className="font-serif text-[#FF7F11] text-xl font-medium">{item.step}</span>
-              </div>
-              <div>
-                <h3 className="font-medium text-[#262626] mb-2">{item.title}</h3>
-                <p className="text-sm text-[#6B7565] leading-relaxed">{item.desc}</p>
-              </div>
+            <div key={item.step} className="sm:px-10 py-8 sm:py-0 first:pl-0 last:pr-0">
+              <span
+                className="font-serif text-[#FF7F11] block mb-5 leading-none"
+                style={{ fontSize: "3rem", fontWeight: 300 }}
+              >{item.step}</span>
+              <h3 className="text-[#262626] font-medium mb-3 tracking-tight">{item.title}</h3>
+              <p className="text-sm text-[#6B7565] leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Demo video */}
-      <section className="py-16 max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-8">
-          <span className="label-caps text-[#6B7565]">Demo en vivo</span>
-          <h2 className="text-[#262626] mt-3 font-serif" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-            Míralo funcionar en<br />
-            <em className="text-[#FF7F11] not-italic">2 minutos.</em>
-          </h2>
-        </div>
-        <div className="relative mx-auto max-w-4xl rounded-sm overflow-hidden shadow-2xl" style={{ aspectRatio: "16/9" }}>
-          <iframe
-            src="https://www.youtube.com/embed/qb92U0A-Aus"
-            title="Central Bolivia Demo"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            className="absolute inset-0 w-full h-full"
-          />
+      <section id="demo" className="py-24 bg-white border-y border-[#EAE7DC]" style={{ scrollMarginTop: "4.5rem" }}>
+        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+          <div className="mb-12">
+            <span className="label-caps text-[#ACBFA4] tracking-[0.2em]">Demo en vivo</span>
+            <h2
+              className="text-[#262626] mt-4 font-serif"
+              style={{ fontSize: "clamp(2.2rem, 4vw, 3.5rem)", fontWeight: 300, letterSpacing: "-0.025em" }}
+            >
+              Míralo funcionar<br />
+              <em style={{ color: "#FF7F11", fontStyle: "normal" }}>en 2 minutos.</em>
+            </h2>
+          </div>
+          <div className="relative mx-auto rounded-sm overflow-hidden shadow-2xl shadow-black/10 border border-[#EAE7DC]" style={{ aspectRatio: "16/9" }}>
+            <iframe
+              src="https://www.youtube.com/embed/qb92U0A-Aus"
+              title="Central Bolivia Demo"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full"
+            />
+          </div>
         </div>
       </section>
 
-      {/* Pricing — contact */}
-      <section className="bg-white py-16 border-t border-[#EAE7DC]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <span className="label-caps text-[#6B7565]">Planes</span>
-          <h2 className="text-[#262626] mt-3 mb-4 font-serif" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-            Planes a tu medida
+      {/* Pricing */}
+      <section className="py-24 max-w-6xl mx-auto px-6 sm:px-8">
+        <div className="mb-16">
+          <span className="label-caps text-[#ACBFA4] tracking-[0.2em]">Planes</span>
+          <h2
+            className="text-[#262626] mt-4 font-serif"
+            style={{ fontSize: "clamp(2.2rem, 4vw, 3.5rem)", fontWeight: 300, letterSpacing: "-0.025em" }}
+          >
+            Invierte en tu<br />presencia digital.
           </h2>
-          <p className="text-[#6B7565] text-lg max-w-xl mx-auto mb-12 leading-relaxed">
-            Para agentes independientes, equipos y brokerages. Sin contratos — cancela cuando quieras.
-          </p>
-          <div className="grid sm:grid-cols-2 gap-8 max-w-3xl mx-auto mb-10">
-            {[
-              { title: "Essential", price: "$29/mo", desc: "Tu oficina digital profesional activa en 2 minutos.", features: ["Portal con tu marca", "Propiedades ilimitadas", "Mapa interactivo", "Leads a WhatsApp"] },
-              { title: "Premium", price: "$49/mo", desc: "El estatus digital para el top 10% de agentes.", features: ["Todo de Essential", "Dominio personalizado ($15/mo value)", "AI Branding Manager", "Soporte prioritario"], highlight: true },
-            ].map((p) => (
-              <div key={p.title} className={`rounded-sm border p-8 text-left flex flex-col gap-5 ${p.highlight ? "border-[#FF7F11] shadow-xl shadow-[#FF7F11]/10 relative" : "border-[#EAE7DC]"}`}>
-                {p.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="label-caps bg-[#FF7F11] text-white px-4 py-1.5 rounded-sm shadow-md">Más popular</span>
-                  </div>
-                )}
-                <div>
-                  <h3 className="font-serif text-[#262626] text-2xl">{p.title}</h3>
-                  <div className="mt-2 flex items-baseline gap-1">
-                    <span className="text-4xl font-light text-[#FF7F11]">{p.price}</span>
-                  </div>
-                  <p className="text-sm text-[#6B7565] mt-3">{p.desc}</p>
-                </div>
-                <div className="h-px bg-[#EAE7DC] w-full" />
-                <ul className="flex flex-col gap-3 flex-1">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-[#262626]">
-                      <svg className="w-4 h-4 text-[#FF7F11] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/bienvenido"
-                  className={`w-full py-3.5 text-center text-sm font-medium rounded-sm transition-all mt-4 ${p.highlight ? "bg-[#262626] text-white hover:bg-[#323232]" : "border border-[#D8D3C8] bg-white text-[#262626] hover:bg-[#F7F5EE]"}`}
-                >
-                  Empezar Ahora
-                </Link>
-              </div>
-            ))}
-          </div>
+        </div>
 
-          <div className="bg-[#FFF7F0] border border-[#FFE0C0] max-w-3xl mx-auto rounded-sm p-4 text-center">
-            <span className="label-caps text-[#FF7F11] bg-[#FFE0C0] px-2 py-1 rounded-sm mr-2 inline-block mb-1 sm:mb-0">Próximamente</span>
-            <span className="text-sm text-[#9A4E00]">Recompensando a los pioneros: <strong>Acceso a Datos Competitivos Nacionales</strong> para usuarios activos.</span>
+        <div className="grid sm:grid-cols-2 gap-6 mb-12">
+          {[
+            { title: "Pro Essential", price: "$49", per: "/mes", desc: "Tu oficina digital profesional con IA, lista en 2 minutos.", features: ["Portal con tu marca y colores", "Propiedades ilimitadas", "CM Digital (Community Manager IA)", "Google Calendar + Gmail Sync", "Web de Lujo (tema premium)"], highlight: false },
+            { title: "Elite Suite", price: "$69", per: "/mes", desc: "El estatus digital para el top 10% de agentes bolivianos.", features: ["Todo de Pro Essential", "Dominio propio incluido", "Nano Banana Pro (mejora de imágenes IA)", "Veo AI Video (recorridos cinemáticos)", "Soporte prioritario 24/7"], highlight: true },
+          ].map((p) => (
+            <div
+              key={p.title}
+              className={`rounded-sm p-10 flex flex-col gap-8 relative transition-shadow duration-300 ${
+                p.highlight
+                  ? "bg-[#262626] text-white"
+                  : "bg-white border border-[#EAE7DC] hover:shadow-lg hover:shadow-black/5"
+              }`}
+            >
+              {p.highlight && (
+                <div className="absolute top-8 right-8">
+                  <span className="label-caps text-[#FF7F11] bg-[#FF7F11]/10 px-3 py-1.5 rounded-sm text-[10px]">Más popular</span>
+                </div>
+              )}
+              <div>
+                <span className={`label-caps tracking-[0.15em] ${p.highlight ? "text-white/40" : "text-[#ACBFA4]"}`}>{p.title}</span>
+                <div className="mt-3 flex items-baseline gap-1">
+                  <span
+                    className={`font-serif font-light leading-none ${p.highlight ? "text-white" : "text-[#262626]"}`}
+                    style={{ fontSize: "clamp(3rem, 5vw, 4rem)" }}
+                  >{p.price}</span>
+                  <span className={`text-sm ${p.highlight ? "text-white/40" : "text-[#ACBFA4]"}`}>{p.per}</span>
+                </div>
+                <p className={`text-sm mt-3 leading-relaxed ${p.highlight ? "text-white/50" : "text-[#6B7565]"}`}>{p.desc}</p>
+              </div>
+
+              <ul className="flex flex-col gap-3 flex-1">
+                {p.features.map((f) => (
+                  <li key={f} className={`flex items-start gap-3 text-sm ${p.highlight ? "text-white/70" : "text-[#262626]"}`}>
+                    <svg className={`w-4 h-4 flex-shrink-0 mt-0.5 ${p.highlight ? "text-[#FF7F11]" : "text-[#FF7F11]"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/bienvenido"
+                className={`w-full py-4 text-center text-sm font-medium rounded-sm transition-colors duration-200 cursor-pointer ${
+                  p.highlight
+                    ? "bg-[#FF7F11] text-white hover:bg-[#CC6500]"
+                    : "border border-[#D8D3C8] text-[#262626] hover:border-[#262626] hover:bg-[#F7F5EE]"
+                }`}
+              >
+                Empezar con 3 días gratis
+              </Link>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-8 border-t border-[#EAE7DC]">
+          <div className="bg-[#FFF7F0] border border-[#FFE0C0] rounded-sm px-5 py-3 flex items-center gap-3">
+            <span className="label-caps text-[#FF7F11] text-[10px]">Próximamente</span>
+            <span className="text-sm text-[#9A4E00]">Datos competitivos nacionales para usuarios activos.</span>
           </div>
-          <p className="text-sm text-[#6B7565]">
-            ¿Prefieres hablar directo?{" "}
-            <a href="tel:+19546488174" className="text-[#FF7F11] font-medium hover:underline">
-              +1 (954) 648-8174
-            </a>
-          </p>
+          <a href="tel:+19546488174" className="label-caps text-[#6B7565] hover:text-[#FF7F11] transition-colors duration-150 whitespace-nowrap cursor-pointer">
+            +1 (954) 648-8174
+          </a>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="bg-[#262626] py-16 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "radial-gradient(circle at 30% 50%, #FF7F11 0%, transparent 60%)" }} />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 text-center">
-          <span className="label-caps text-[#ACBFA4]">Empieza hoy</span>
-          <h2 className="text-white mt-3 mb-4 font-serif leading-tight" style={{ fontSize: "clamp(2rem, 5vw, 4rem)" }}>
-            Tu portal inmobiliario<br />
-            <em className="text-[#FF7F11] not-italic">activo en 2 minutos.</em>
-          </h2>
-          <p className="text-[#ACBFA4] mb-10 max-w-md mx-auto text-lg">
-            Únete a los agentes bolivianos que ya trabajan con un portal profesional 24/7.
-          </p>
-          <Link
-            href="/bienvenido"
-            className="inline-flex items-center gap-2 px-10 py-5 bg-[#FF7F11] text-white font-medium rounded-sm hover:bg-[#CC6500] transition-all text-lg shadow-xl shadow-[#FF7F11]/20"
-          >
-            Activar mi portal gratis
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-          <p className="text-[#6B7565] text-sm mt-4">3 días de demo · Sin tarjeta de crédito</p>
+      <section className="bg-[#FF7F11] py-24 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 70% 50%, #fff 0%, transparent 60%)" }} />
+        <div className="relative max-w-6xl mx-auto px-6 sm:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-10">
+          <div>
+            <span className="label-caps text-white/60 tracking-[0.2em]">Empieza hoy</span>
+            <h2
+              className="text-white mt-4 font-serif leading-[1.0]"
+              style={{ fontSize: "clamp(2.5rem, 6vw, 5.5rem)", fontWeight: 300, letterSpacing: "-0.03em" }}
+            >
+              Tu portal<br />activo en<br />2 minutos.
+            </h2>
+          </div>
+          <div className="flex flex-col gap-4 flex-shrink-0">
+            <Link
+              href="/bienvenido"
+              className="inline-flex items-center gap-3 px-10 py-5 bg-[#262626] text-white font-medium rounded-sm hover:bg-black transition-colors duration-200 cursor-pointer"
+              style={{ fontSize: "0.9rem", letterSpacing: "0.02em" }}
+            >
+              Activar mi portal gratis
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <p className="text-white/50 text-xs text-center tracking-wide">3 días gratis · Sin tarjeta de crédito</p>
+          </div>
         </div>
       </section>
 
       <LandingChatbot />
 
       {/* Footer */}
-      <footer className="bg-[#1a1a1a] text-[#6B7565] py-10 border-t border-white/5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-5 h-5 bg-[#FF7F11] rounded-sm" />
-            <span className="text-white text-sm font-medium">Central Bolivia</span>
+      <footer className="bg-[#111] text-[#6B7565] py-12">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8 pb-8 border-b border-white/5">
+            <div className="flex items-center gap-3">
+              <div className="w-4 h-4 bg-[#FF7F11] rounded-sm" />
+              <span className="text-white/80 text-sm font-serif tracking-tight">Central Bolivia</span>
+            </div>
+            <div className="flex gap-8">
+              <Link href="/login" className="label-caps text-[#6B7565] hover:text-white transition-colors duration-150 cursor-pointer">Ingresar</Link>
+              <Link href="/bienvenido" className="label-caps text-[#6B7565] hover:text-white transition-colors duration-150 cursor-pointer">Registro</Link>
+              <a href="tel:+19546488174" className="label-caps text-[#6B7565] hover:text-white transition-colors duration-150 cursor-pointer">Contacto</a>
+            </div>
           </div>
-          <p className="text-xs">© 2025 Central Bolivia. Hecho en Bolivia 🇧🇴</p>
-          <div className="flex gap-6">
-            <Link href="/login" className="label-caps hover:text-white transition-colors">Ingresar</Link>
-            <Link href="/bienvenido" className="label-caps hover:text-white transition-colors">Registro</Link>
-            <a href="tel:+19546488174" className="label-caps hover:text-white transition-colors">Contacto</a>
+          <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <p className="text-xs text-[#6B7565]/60">© 2025 Central Bolivia. Hecho en Bolivia 🇧🇴</p>
+            <p className="text-xs text-[#6B7565]/40 tracking-wide">PropTech · Santa Cruz · Bolivia</p>
           </div>
         </div>
       </footer>
