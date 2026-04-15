@@ -87,6 +87,23 @@ const STATS = [
   { n: "2 min", label: "Para lanzar tu portal" },
 ];
 
+const ACTIVITY_FEED = [
+  { icon: <Bot className="w-4 h-4" />, action: "Chatbot respondió '¿Cuánto cuesta el dpto en Equipetrol?'", detail: "Buyer: Carlos M. · enviado a tu WhatsApp", time: "11:47pm" },
+  { icon: <CalendarCheck className="w-4 h-4" />, action: "AI Scheduler agendó visita de Marco R.", detail: "Martes 9:00am · Confirmación enviada por Gmail", time: "12:03am" },
+  { icon: <Sparkles className="w-4 h-4" />, action: "CM Digital generó post para Casa en Urubichá", detail: "Caption + hashtags · Listo para publicar en Instagram", time: "7:30am" },
+  { icon: <Zap className="w-4 h-4" />, action: "Lead Sniper capturó nuevo lead calificado", detail: "Ana Torres · +591 76... · Interesada en depto 2 dormitorios", time: "8:15am" },
+  { icon: <Video className="w-4 h-4" />, action: "Veo AI completó video de Casa en zona Norte", detail: "Recorrido cinemático 60s · Listo para compartir", time: "9:00am" },
+];
+
+const DEPARTMENTS = [
+  { icon: <Bot className="w-4 h-4" />, name: "Recepción 24/7", tools: "Chatbot IA · AI Scheduler · Gmail" },
+  { icon: <Sparkles className="w-4 h-4" />, name: "Marketing Digital", tools: "CM Digital · Voz de Marca" },
+  { icon: <Video className="w-4 h-4" />, name: "Producción", tools: "Veo AI Video · Nano Banana Pro" },
+  { icon: <Zap className="w-4 h-4" />, name: "CRM & Captación", tools: "Lead Sniper · Portal de propiedades" },
+  { icon: <FileText className="w-4 h-4" />, name: "Base de Conocimiento", tools: "KB Upload · Voz de Marca" },
+  { icon: <Globe className="w-4 h-4" />, name: "Presencia Digital", tools: "Portal · Dominio propio · Mapa interactivo" },
+];
+
 function MarketingPage() {
   return (
     <>
@@ -112,7 +129,7 @@ function MarketingPage() {
         <div className="max-w-5xl">
           <div className="flex items-center gap-3 mb-10">
             <div className="w-8 h-px bg-[#FF7F11]" />
-            <span className="label-caps text-[#6B7565] tracking-[0.2em]">PropTech · Bolivia</span>
+            <span className="label-caps text-[#6B7565] tracking-[0.2em]">La primera oficina virtual de IA inmobiliaria en Bolivia</span>
           </div>
 
           <h1
@@ -134,7 +151,7 @@ function MarketingPage() {
               className="inline-flex items-center gap-2.5 px-8 py-4 bg-[#FF7F11] text-white font-medium rounded-sm hover:bg-[#CC6500] transition-colors duration-200 active:scale-[0.98] cursor-pointer"
               style={{ fontSize: "0.9rem", letterSpacing: "0.02em" }}
             >
-              Activar mi portal gratis
+              Activar mi oficina gratis
               <ArrowRight className="w-4 h-4" />
             </Link>
             <a
@@ -147,7 +164,7 @@ function MarketingPage() {
             </a>
           </div>
           <p className="text-xs text-[#ACBFA4] mt-5 tracking-wide">
-            3 días gratuitos · Sin tarjeta de crédito · Desde $49/mes
+            3 días gratuitos · Sin tarjeta de crédito · Desde $49/mes · Setup fee $0
           </p>
         </div>
 
@@ -167,6 +184,53 @@ function MarketingPage() {
 
       {/* Social proof bar */}
       <BrandLogoBar />
+
+
+      {/* Mientras duermes — Activity feed */}
+      <section className="bg-[#1C1C1C] py-24">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <span className="label-caps text-[#ACBFA4]/60 tracking-[0.2em]">Automatización total</span>
+              <h2
+                className="text-white mt-4 font-serif leading-[1.05] mb-6"
+                style={{ fontSize: "clamp(2.2rem, 4.5vw, 4rem)", fontWeight: 300, letterSpacing: "-0.025em" }}
+              >
+                Mientras duermes,<br />
+                <em style={{ color: "#FF7F11", fontStyle: "normal" }}>tu oficina trabaja.</em>
+              </h2>
+              <p className="text-white/40 text-sm leading-relaxed max-w-sm mb-8">
+                Cada noche tu oficina virtual captura leads, agenda visitas y genera contenido para el día siguiente. Sin que muevas un dedo.
+              </p>
+              <Link
+                href="/bienvenido"
+                className="inline-flex items-center gap-2.5 px-7 py-3.5 bg-[#FF7F11] text-white text-sm font-medium rounded-sm hover:bg-[#CC6500] transition-colors duration-200 cursor-pointer"
+              >
+                Ver mi oficina en acción <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="flex flex-col gap-2.5">
+              {ACTIVITY_FEED.map((item, i) => (
+                <div key={i} className="flex items-start gap-4 bg-white/4 rounded-sm px-5 py-4 border border-white/5 hover:bg-white/6 transition-colors duration-200">
+                  <div className="w-8 h-8 rounded-sm bg-[#FF7F11]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-[#FF7F11]">{item.icon}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white/80 text-sm leading-snug">{item.action}</p>
+                    <p className="text-white/25 text-xs mt-1">{item.detail}</p>
+                  </div>
+                  <span className="text-[#FF7F11]/50 text-xs font-mono flex-shrink-0 mt-0.5">{item.time}</span>
+                </div>
+              ))}
+              <div className="flex items-center gap-2 px-5 pt-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-400" style={{ animation: "pulse 2s infinite" }} />
+                <span className="text-white/20 text-xs">Tu oficina está activa ahora mismo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Problem / Solution */}
       <section className="py-24 max-w-6xl mx-auto px-6 sm:px-8">
@@ -200,44 +264,17 @@ function MarketingPage() {
             </div>
           </div>
 
-          {/* Mock portal preview */}
-          <div className="bg-[#1C1C1C] rounded-sm p-5 shadow-2xl shadow-black/20">
-            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/5">
-              <div className="flex gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-white/15" />
-                <div className="w-2.5 h-2.5 rounded-full bg-white/15" />
-                <div className="w-2.5 h-2.5 rounded-full bg-white/15" />
-              </div>
-              <div className="flex-1 bg-white/5 rounded h-5 mx-2 flex items-center px-3">
-                <span className="text-white/25 text-[10px] tracking-wide">tuagencia.centralbolivia.com</span>
-              </div>
-            </div>
-            <div className="bg-[#141414] rounded-sm overflow-hidden">
-              <div className="h-20 bg-gradient-to-br from-[#FF7F11]/15 via-transparent to-transparent flex items-end p-4">
-                <div>
-                  <div className="h-1.5 w-20 bg-white/15 rounded mb-2" />
-                  <div className="h-3 w-32 bg-white/30 rounded" />
+          {/* Departments grid */}
+          <div className="grid grid-cols-2 gap-3">
+            {DEPARTMENTS.map((dept) => (
+              <div key={dept.name} className="bg-white border border-[#EAE7DC] rounded-sm p-5 hover:shadow-md hover:shadow-black/5 transition-shadow duration-300 cursor-default">
+                <div className="w-8 h-8 rounded-sm bg-[#FF7F11]/8 flex items-center justify-center mb-3">
+                  <span className="text-[#FF7F11]">{dept.icon}</span>
                 </div>
+                <p className="text-[#262626] text-xs font-medium mb-1">{dept.name}</p>
+                <p className="text-[#ACBFA4] text-xs leading-relaxed">{dept.tools}</p>
               </div>
-              <div className="p-3 grid grid-cols-2 gap-2.5">
-                {[1, 2, 3, 4].map((n) => (
-                  <div key={n} className="bg-white/4 rounded-sm overflow-hidden">
-                    <div className="h-14 bg-white/8" />
-                    <div className="p-2.5">
-                      <div className="h-1.5 w-3/4 bg-white/15 rounded mb-1.5" />
-                      <div className="h-1.5 w-1/2 bg-[#FF7F11]/50 rounded" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                <span className="text-white/30 text-xs">3 visitantes activos</span>
-              </div>
-              <span className="text-[#FF7F11]/60 text-xs font-mono">LIVE</span>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -260,7 +297,7 @@ function MarketingPage() {
               href="/bienvenido"
               className="inline-flex items-center gap-2 label-caps text-[#FF7F11] hover:gap-3 transition-all duration-200 whitespace-nowrap cursor-pointer"
             >
-              Crear mi portal <ArrowRight className="w-3.5 h-3.5" />
+              Ver mi oficina <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/5 rounded-sm overflow-hidden">
@@ -432,7 +469,7 @@ function MarketingPage() {
                     : "border border-[#D8D3C8] text-[#262626] hover:border-[#262626] hover:bg-[#F7F5EE]"
                 }`}
               >
-                Empezar con 3 días gratis
+                Activar mi oficina 3 días gratis
               </Link>
               <p className={`text-[10px] text-center mt-3 label-caps ${p.highlight ? "text-white/40" : "text-[#ACBFA4]"}`}>
                 Promoción Early Adopter: Setup Fee ($100) GRATIS antes del 1 de mayo
@@ -471,7 +508,7 @@ function MarketingPage() {
               className="inline-flex items-center gap-3 px-10 py-5 bg-[#262626] text-white font-medium rounded-sm hover:bg-black transition-colors duration-200 cursor-pointer"
               style={{ fontSize: "0.9rem", letterSpacing: "0.02em" }}
             >
-              Activar mi portal gratis
+              Activar mi oficina gratis
               <ArrowRight className="w-4 h-4" />
             </Link>
             <p className="text-white/50 text-xs text-center tracking-wide">3 días gratis · Sin tarjeta de crédito</p>
