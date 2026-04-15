@@ -383,6 +383,9 @@ function MarketingPage() {
               >
                 Empezar con 3 días gratis
               </Link>
+              <p className={`text-[10px] text-center mt-3 label-caps ${p.highlight ? "text-white/40" : "text-[#ACBFA4]"}`}>
+                Promoción Early Adopter: Setup Fee ($100) GRATIS antes del 1 de mayo
+              </p>
             </div>
           ))}
         </div>

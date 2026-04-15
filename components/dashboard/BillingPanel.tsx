@@ -144,6 +144,10 @@ export function BillingPanel({ userId = "N/A", entitySlug = "N/A", isNew = false
                 {loadingPlan === plan.key ? "Redirigiendo..." : "Pagar con Tarjeta"}
               </button>
 
+              <p className="text-center text-[10px] label-caps text-[#6B7565]">
+                Promoción: Setup Fee ($100) GRATIS hasta el 1 de mayo
+              </p>
+
               <a
                 href={getWhatsAppLink(plan.name)}
                 target="_blank"
