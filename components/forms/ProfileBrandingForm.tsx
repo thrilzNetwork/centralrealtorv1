@@ -178,9 +178,18 @@ export function ProfileEditor({ profile }: { profile: Profile | null }) {
                 ))}
               </div>
               <div className="flex items-center gap-2">
-                <input type="color" value={color} onChange={(e) => setColor(e.target.value)}
-                  className="w-10 h-9 cursor-pointer border border-[#D8D3C8] rounded-sm" />
-                <span className="text-sm font-mono text-[#6B7565]">{color}</span>
+                <input
+                  type="color"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                  className="w-10 h-9 cursor-pointer border border-[#D8D3C8] rounded-sm"
+                />
+                <input
+                  type="text"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                  className="text-sm font-mono text-[#6B7565] border border-[#D8D3C8] rounded-sm px-2 py-1 w-24 focus:outline-none focus:border-[#FF7F11]"
+                />
               </div>
             </div>
           ))}
