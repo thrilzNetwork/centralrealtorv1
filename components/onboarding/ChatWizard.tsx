@@ -186,14 +186,9 @@ export function ChatWizard() {
       }
 
       // ── Step 4: Link Google Account (Optional) ───────────────────────────
-<<<<<<< HEAD
       addMessage("agent", STEPS.google_link.message);
-=======
-      // Feature temporarily disabled
-      addMessage("agent", "🎉 ¡Todo listo! Tu portal está activo. Ahora puedes entrar y empezar a gestionar tus propiedades.");
->>>>>>> 3e27c620b251cdc6eeb901b3689d858d8d3f38b3
 
-      setStep("done");
+      setStep("google_link");
       setLoading(false);
       return;
 
