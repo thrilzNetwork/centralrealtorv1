@@ -80,37 +80,11 @@ export function ChatWizard() {
 
     switch (step) {
       case "welcome":
-        agentReply("social");
+        agentReply("email");
         break;
 
-      // ── Social (optional) — no server fetch, just parse handle ─────────
+      // ── Social (disabled) ─────────────────────────────────────────────────
       case "social": {
-        // Accept: @ales23 | ales23 | https://instagram.com/ales23/
-        const handle = val
-          .replace(/https?:\/\/(www\.)?instagram\.com\//i, "")
-          .replace(/^@/, "")
-          .replace(/\/$/, "")
-          .split("?")[0]
-          .trim();
-
-        if (handle) {
-          const avatarUrl = `https://unavatar.io/instagram/${handle}`;
-          setSocialData({ handle, avatar_url: avatarUrl });
-          setData((d) => ({ ...d, socialUrl: handle }));
-
-          setIsTyping(true);
-          await new Promise((r) => setTimeout(r, 500));
-          setIsTyping(false);
-
-          addMessage(
-            "agent",
-            `✓ Guardé tu usuario @${handle}. Tu foto de perfil se usará en tu portal. Continuemos con tu cuenta.`,
-            undefined,
-            avatarUrl,
-          );
-          await new Promise((r) => setTimeout(r, 400));
-        }
-
         agentReply("email");
         break;
       }
