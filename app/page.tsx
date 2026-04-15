@@ -80,7 +80,7 @@ function MarketingPage() {
   return (
     <>
       <AccessGate />
-      <div className="min-h-screen bg-[#F7F5EE] font-sans">
+      <div className="min-h-screen bg-[#F7F5EE] font-sans landing-content">
         {/* Nav */}
         <nav className="fixed top-0 left-0 right-0 z-50 bg-[#F7F5EE]/95 backdrop-blur-sm border-b border-[#EAE7DC]">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 flex items-center justify-between h-[4.5rem]">

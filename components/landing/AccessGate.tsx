@@ -14,8 +14,11 @@ export default function AccessGate() {
     e.preventDefault();
     if (code.toLowerCase().trim() === "boom") {
       setIsVerified(true);
-      // Store in localStorage so they don't have to enter it every time during the session
       localStorage.setItem("central_access_code", "boom");
+
+      // Update the body class to remove 'hidden' from the landing page
+      document.body.classList.remove("landing-hidden");
+
       setTimeout(() => {
         router.refresh();
       }, 500);
@@ -28,10 +31,18 @@ export default function AccessGate() {
   useEffect(() => {
     if (localStorage.getItem("central_access_code") === "boom") {
       setIsVerified(true);
+      document.body.classList.remove("landing-hidden");
+    } else {
+      document.body.classList.add("landing-hidden");
     }
   }, []);
 
-  if (isVerified) return null;
+  if (isVerified) {
+    // When verified, we need to trigger a re-render or a state change in the parent.
+    // Since we are using a Client Component inside a Server Component,
+    // we can use a custom event or simply let the user's session persist.
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-[9999] bg-[#F7F5EE] flex items-center justify-center p-6">
