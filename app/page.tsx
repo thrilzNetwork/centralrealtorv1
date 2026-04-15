@@ -108,13 +108,13 @@ function MarketingPage() {
             className="text-[#262626] font-serif leading-[0.97] mb-8"
             style={{ fontSize: "clamp(4rem, 9vw, 9.5rem)", letterSpacing: "-0.035em", fontWeight: 300 }}
           >
-            Tu agente<br />
-            digital que<br />
-            <em style={{ color: "#FF7F11", fontStyle: "normal" }}>trabaja 24h.</em>
+            Tu Agencia de<br />
+            Inteligencia<br />
+            <em style={{ color: "#FF7F11", fontStyle: "normal" }}>Inmobiliaria que nunca duerme.</em>
           </h1>
 
           <p className="text-[#6B7565] leading-relaxed max-w-xl mb-12" style={{ fontSize: "1.2rem" }}>
-            Mientras duermes, tu portal captura leads, muestra propiedades en el mapa y trabaja por ti — tú solo cierras los negocios.
+            Mientras descansas, tu portal captura leads, agenda visitas en tu calendario y genera videos cinemáticos de tus propiedades. Central se encarga de la tecnología y el marketing — tú solo te encargas de cerrar el negocio.
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
