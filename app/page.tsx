@@ -533,7 +533,13 @@ function MarketingPage() {
             </div>
           </div>
           <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <p className="text-xs text-[#6B7565]/60">© 2026 Central Bolivia. Hecho en Bolivia 🇧🇴</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-xs text-[#6B7565]/60">© 2026 Central Bolivia. Hecho en Bolivia 🇧🇴</p>
+              <div className="flex gap-4">
+                <Link href="/privacy" className="text-[10px] text-[#6B7565]/40 hover:text-white transition-colors">Privacidad</Link>
+                <Link href="/terms" className="text-[10px] text-[#6B7565]/40 hover:text-white transition-colors">Términos</Link>
+              </div>
+            </div>
             <p className="text-xs text-[#6B7565]/40 tracking-wide">PropTech · Santa Cruz · Bolivia</p>
           </div>
         </div>

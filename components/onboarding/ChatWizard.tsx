@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 
-type Step = "welcome" | "social" | "email" | "password" | "name" | "brand" | "whatsapp" | "theme" | "google_link" | "done";
+type Step = "welcome" | "social" | "email" | "password" | "name" | "brand" | "whatsapp" | "theme" | "agreement" | "google_link" | "done";
 type MessageRole = "agent" | "user";
 
 interface Message {
@@ -33,6 +33,7 @@ const STEPS: Record<Step, { message: string; inputType?: Message["type"] }> = {
   brand:    { message: "¿Cómo se llama tu marca o agencia? (Ej: Inmobiliaria Sur, García Propiedades)", inputType: "input-text" },
   whatsapp: { message: "¿Cuál es tu número de WhatsApp? Los clientes lo usarán para contactarte. (Ej: +59171234567)", inputType: "input-whatsapp" },
   theme:    { message: "Elige la plantilla visual de tu portal:", inputType: "theme-picker" },
+  agreement: { message: "Para finalizar, debes aceptar nuestros Términos de Servicio y Política de Privacidad para activar tu oficina virtual." },
   google_link: { message: "🎉 ¡Todo listo! Tu portal está activo. Antes de entrar, ¿quieres conectar tu cuenta de Google? Esto nos permitirá sincronizar tu calendario y enviar confirmaciones automáticas a tus clientes." },
   done:     { message: "🎉 ¡Todo listo! Estamos creando tu portal. Serás redirigido en un momento..." },
 };
@@ -122,14 +123,15 @@ export function ChatWizard() {
         agentReply("whatsapp");
         break;
 
-      case "whatsapp":
-        setData((d) => ({ ...d, whatsapp: val }));
-        agentReply("theme");
+      case "agreement": {
+        addMessage("user", "Acepto los términos y condiciones");
+        await handleFinalSubmit({ ...data });
         break;
+      }
 
       case "theme":
         setData((d) => ({ ...d, theme: val }));
-        await handleFinalSubmit({ ...data, theme: val });
+        agentReply("agreement");
         break;
     }
   }
@@ -311,22 +313,17 @@ export function ChatWizard() {
           )}
 
           {/* Google Link Step */}
-          {step === "google_link" && !isTyping && (
+          {step === "agreement" && !isTyping && (
             <div className="flex flex-col gap-3 pl-10 animate-fade-up">
-              <Button onClick={() => window.location.href = "/api/auth/google-link"} size="sm">
-                Conectar Google
+              <div className="flex gap-3 p-3 bg-white border border-[#D8D3C8] rounded-sm text-xs text-[#6B7565] leading-relaxed">
+                <span>Al hacer clic en 'Finalizar', aceptas nuestros</span>
+                <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#FF7F11] font-medium hover:underline">Términos de Servicio</a>
+                <span>y nuestra</span>
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[#FF7F11] font-medium hover:underline">Política de Privacidad</a>.
+              </div>
+              <Button onClick={() => handleSubmit("aceptar")} size="sm">
+                Finalizar y Crear Portal
               </Button>
-              <button
-                onClick={() => {
-                  addMessage("user", "Omitir por ahora");
-                  setStep("done");
-                  addMessage("agent", STEPS.done.message);
-                  window.location.href = "/dashboard?bienvenido=1";
-                }}
-                className="text-left text-xs text-[#ACBFA4] hover:text-[#6B7565] transition-colors"
-              >
-                Omitir por ahora →
-              </button>
             </div>
           )}
 
