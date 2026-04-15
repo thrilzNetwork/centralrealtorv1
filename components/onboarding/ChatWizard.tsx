@@ -164,8 +164,6 @@ export function ChatWizard() {
     setIsTyping(true);
     await new Promise((r) => setTimeout(r, 300));
     setIsTyping(false);
-    addMessage("agent", STEPS.done.message);
-    setStep("done");
     setLoading(true);
 
     try {
@@ -214,7 +212,7 @@ export function ChatWizard() {
       }
 
       // ── Step 4: Link Google Account (Optional) ───────────────────────────
-      addMessage("agent", "🎉 ¡Todo listo! Tu portal está activo. Antes de entrar, ¿quieres conectar tu cuenta de Google? Esto nos permitirá sincronizar tu calendario y enviar confirmaciones automáticas a tus clientes.");
+      addMessage("agent", STEPS.google_link.message);
 
       setStep("google_link");
       setLoading(false);
