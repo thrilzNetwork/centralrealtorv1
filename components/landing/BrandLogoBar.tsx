@@ -12,7 +12,7 @@ export function BrandLogoBar() {
 
         <div className="flex flex-wrap items-center justify-center gap-12 sm:gap-20 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
           <img
-            src="/components/landing/brandlogos.png"
+            src="/brandlogos.png"
             alt="Brand Logos"
             className="h-auto max-w-full object-contain"
             style={{ maxHeight: '60px' }}

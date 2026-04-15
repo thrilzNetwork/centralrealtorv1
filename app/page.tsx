@@ -5,7 +5,7 @@ import { resolveBySlug } from "@/lib/tenant/resolver";
 import { TenantProvider } from "@/components/themes/TenantContext";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { RealtorV1Page } from "@/components/themes/realtor-v1/RealtorV1Page";
-import { ArrowRight, MapPin, Layout, Target, Users, Play } from "lucide-react";
+import { ArrowRight, Bot, Sparkles, Video, Camera, Globe, Zap, Play, CalendarCheck, FileText } from "lucide-react";
 import { LandingChatbot } from "@/components/LandingChatbot";
 import { BrandLogoBar } from "@/components/landing/BrandLogoBar";
 import { AccessGate } from "@/components/landing/AccessGate";
@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
   return {
     title: "Central Bolivia — Tu agente digital 24/7",
-    description: "Portal inmobiliario propio con mapa interactivo, captura de leads y tecnología. Listo en 2 minutos.",
+    description: "Tu oficina virtual de inteligencia inmobiliaria: chatbot IA, agenda automática, videos cinemáticos, CM Digital y más. Lista en 2 minutos.",
   };
 }
 
@@ -64,16 +64,27 @@ export default async function HomePage() {
 
 // ─── Features ─────────────────────────────────────────────────
 const FEATURES = [
-  { icon: <MapPin className="w-6 h-6" />, title: "Mapa Interactivo", desc: "Tus propiedades aparecen como pins en el mapa de tu portal. Los compradores ubican cada inmueble al instante." },
-  { icon: <Layout className="w-6 h-6" />, title: "Portal con tu Marca", desc: "Logo, colores, dominio propio. Tu portal se ve como una agencia profesional desde el día uno." },
-  { icon: <Target className="w-6 h-6" />, title: "Lead Sniper", desc: "Cuando un comprador guarda una propiedad, recibes notificación en WhatsApp al instante — nunca pierdas un cliente." },
-  { icon: <Users className="w-6 h-6" />, title: "Multi-agente", desc: "Escala tu equipo sin límites. Cada agente tiene su propio portal bajo la misma plataforma." },
+  { icon: <Bot className="w-6 h-6" />, title: "Chatbot IA 24/7", desc: "Responde compradores, agenda visitas en tu Google Calendar y registra leads — conectado a tu base de conocimiento y tu voz de marca." },
+  { icon: <Sparkles className="w-6 h-6" />, title: "CM Digital", desc: "Genera posts para Instagram y Facebook por cada propiedad con tu voz. Contenido profesional listo para publicar en segundos." },
+  { icon: <Video className="w-6 h-6" />, title: "Veo AI Video", desc: "Recorridos cinemáticos generados por IA para cada inmueble. Sin cámara, sin edición, sin costo de producción." },
+  { icon: <Camera className="w-6 h-6" />, title: "Nano Banana Pro", desc: "Mejora automática de imágenes: luminosidad, nitidez y virtual staging con IA. Fotos profesionales desde tu celular." },
+  { icon: <Globe className="w-6 h-6" />, title: "Portal con tu Marca", desc: "Tu dominio, tu logo, tus colores, tu personalidad. Listo en 2 minutos — sin código, sin diseñadores, sin excusas." },
+  { icon: <Zap className="w-6 h-6" />, title: "Lead Sniper", desc: "Captura leads las 24 horas y te notifica por WhatsApp al instante con los datos del comprador interesado." },
+];
+
+const AI_STACK = [
+  { icon: <Bot className="w-5 h-5" />, name: "Chatbot IA", sub: "Gemini · RAG · Base de conocimiento" },
+  { icon: <CalendarCheck className="w-5 h-5" />, name: "AI Scheduler", sub: "Google Calendar · Gmail · Confirmación automática" },
+  { icon: <Sparkles className="w-5 h-5" />, name: "CM Digital", sub: "Generación de contenido · Tu voz de marca" },
+  { icon: <Video className="w-5 h-5" />, name: "Veo AI Video", sub: "Videos cinemáticos · Sin producción" },
+  { icon: <Camera className="w-5 h-5" />, name: "Nano Banana Pro", sub: "Mejora de imágenes · Virtual staging" },
+  { icon: <FileText className="w-5 h-5" />, name: "Scraper de Portales", sub: "Importa desde C21 Bolivia y otros portales" },
 ];
 
 const STATS = [
-  { n: "24/7", label: "Tu portal trabaja" },
-  { n: "2 min", label: "Para lanzar tu sitio" },
-  { n: "100%", label: "Tu marca, tu dominio" },
+  { n: "6+", label: "Herramientas IA" },
+  { n: "24/7", label: "Tu oficina trabaja" },
+  { n: "2 min", label: "Para lanzar tu portal" },
 ];
 
 function MarketingPage() {
@@ -114,7 +125,7 @@ function MarketingPage() {
           </h1>
 
           <p className="text-[#6B7565] leading-relaxed max-w-xl mb-12" style={{ fontSize: "1.2rem" }}>
-            Mientras descansas, tu portal captura leads, agenda visitas en tu calendario y genera videos cinemáticos de tus propiedades. Central se encarga de la tecnología y el marketing — tú solo te encargas de cerrar el negocio.
+            Tu chatbot IA responde compradores, agenda visitas en Google Calendar, genera posts para redes y produce videos cinemáticos de tus inmuebles — todo automático. Tú solo apareces a cerrar el negocio.
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
@@ -166,14 +177,14 @@ function MarketingPage() {
               className="text-[#262626] mt-4 mb-10 font-serif leading-[1.05]"
               style={{ fontSize: "clamp(2.2rem, 4vw, 3.5rem)", fontWeight: 300, letterSpacing: "-0.025em" }}
             >
-              Los mejores agentes<br />pierden clientes<br />
-              <em style={{ color: "#FF7F11", fontStyle: "normal" }}>por no estar disponibles.</em>
+              Los mejores agentes<br />no tienen tiempo<br />
+              <em style={{ color: "#FF7F11", fontStyle: "normal" }}>para todo lo que importa.</em>
             </h2>
             <div className="flex flex-col divide-y divide-[#EAE7DC]">
               {[
-                { pain: "Un comprador visita tu portal a las 11pm — no hay nadie.", fix: "Tu portal captura sus datos y te avisa al instante por WhatsApp." },
-                { pain: "Tus propiedades son difíciles de ubicar sin un mapa.", fix: "Cada propiedad aparece como pin en el mapa interactivo de tu portal." },
-                { pain: "Tu presencia digital no refleja tu nivel profesional.", fix: "Logo, colores y dominio propio — listo en 2 minutos, sin código." },
+                { pain: "Un comprador a las 11pm no tiene quién le responda.", fix: "Tu chatbot IA responde, agenda la visita y confirma por Gmail — todo sin ti." },
+                { pain: "Publicar en redes toma horas que no tienes.", fix: "CM Digital genera posts con tu voz y tus colores, listos para publicar al instante." },
+                { pain: "Tus fotos no hacen justicia al inmueble.", fix: "Nano Banana Pro mejora cada imagen con IA. Veo AI genera el recorrido cinemático en segundos." },
               ].map((item, i) => (
                 <div key={i} className="py-5 flex gap-5">
                   <span
@@ -241,8 +252,8 @@ function MarketingPage() {
                 className="text-white mt-4 font-serif leading-[1.05]"
                 style={{ fontSize: "clamp(2.2rem, 4.5vw, 4rem)", fontWeight: 300, letterSpacing: "-0.025em" }}
               >
-                Todo lo que necesita<br />
-                <em style={{ color: "#FF7F11", fontStyle: "normal" }}>un agente moderno.</em>
+                Tu ecosistema completo<br />
+                <em style={{ color: "#FF7F11", fontStyle: "normal" }}>de inteligencia inmobiliaria.</em>
               </h2>
             </div>
             <Link
@@ -252,7 +263,7 @@ function MarketingPage() {
               Crear mi portal <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-white/5 rounded-sm overflow-hidden">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/5 rounded-sm overflow-hidden">
             {FEATURES.map((f) => (
               <div
                 key={f.title}
@@ -277,14 +288,14 @@ function MarketingPage() {
             className="text-[#262626] mt-4 font-serif"
             style={{ fontSize: "clamp(2.2rem, 4vw, 3.5rem)", fontWeight: 300, letterSpacing: "-0.025em" }}
           >
-            De cero a portal<br />en 3 pasos.
+            Tu oficina de IA<br />lista en 3 pasos.
           </h2>
         </div>
         <div className="grid sm:grid-cols-3 gap-0 divide-y sm:divide-y-0 sm:divide-x divide-[#EAE7DC]">
           {[
-            { step: "01", title: "Crea tu cuenta", desc: "El asistente conversacional configura tu portal en 2 minutos. Sin formularios, sin código." },
-            { step: "02", title: "Agrega propiedades", desc: "Sube fotos, describe el inmueble y geolocaliza. Aparece en el mapa de tu portal al instante." },
-            { step: "03", title: "Trabaja 24/7", desc: "Tu portal captura leads mientras duermes. Cada lead llega a tu WhatsApp con contacto directo." },
+            { step: "01", title: "Crea tu oficina virtual", desc: "El asistente configura tu portal, importa tu marca de Instagram y conecta Google Calendar. 2 minutos, sin código." },
+            { step: "02", title: "Carga tu portafolio", desc: "Importa propiedades desde C21 Bolivia u otros portales con un solo link. Fotos, precios y mapas — automático." },
+            { step: "03", title: "La IA trabaja por ti", desc: "Tu chatbot agenda visitas, CM Digital publica en redes y Lead Sniper te avisa por WhatsApp cada vez que hay interés." },
           ].map((item) => (
             <div key={item.step} className="sm:px-10 py-8 sm:py-0 first:pl-0 last:pr-0">
               <span
@@ -295,6 +306,43 @@ function MarketingPage() {
               <p className="text-sm text-[#6B7565] leading-relaxed">{item.desc}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* AI Stack */}
+      <section className="py-20 bg-[#1C1C1C]">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
+            <div>
+              <span className="label-caps text-[#ACBFA4]/60 tracking-[0.2em]">Tecnología</span>
+              <h2
+                className="text-white mt-3 font-serif leading-[1.05]"
+                style={{ fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 300, letterSpacing: "-0.02em" }}
+              >
+                Seis motores IA.<br />
+                <em style={{ color: "#FF7F11", fontStyle: "normal" }}>Una sola oficina.</em>
+              </h2>
+            </div>
+            <p className="text-white/35 text-sm max-w-xs leading-relaxed">
+              Cada herramienta trabaja conectada con las demás — no son apps separadas, es un solo sistema inteligente.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {AI_STACK.map((item) => (
+              <div
+                key={item.name}
+                className="flex items-start gap-4 bg-white/4 hover:bg-white/8 transition-colors duration-200 rounded-sm p-5 cursor-default group"
+              >
+                <div className="w-9 h-9 rounded-sm bg-[#FF7F11]/10 group-hover:bg-[#FF7F11]/20 flex items-center justify-center flex-shrink-0 transition-colors duration-200">
+                  <span className="text-[#FF7F11]">{item.icon}</span>
+                </div>
+                <div>
+                  <p className="text-white text-sm font-medium mb-1">{item.name}</p>
+                  <p className="text-white/35 text-xs leading-relaxed">{item.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -414,7 +462,7 @@ function MarketingPage() {
               className="text-white mt-4 font-serif leading-[1.0]"
               style={{ fontSize: "clamp(2.5rem, 6vw, 5.5rem)", fontWeight: 300, letterSpacing: "-0.03em" }}
             >
-              Tu portal<br />activo en<br />2 minutos.
+              Tu oficina de IA<br />lista en<br />2 minutos.
             </h2>
           </div>
           <div className="flex flex-col gap-4 flex-shrink-0">
@@ -448,11 +496,12 @@ function MarketingPage() {
             </div>
           </div>
           <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <p className="text-xs text-[#6B7565]/60">© 2025 Central Bolivia. Hecho en Bolivia 🇧🇴</p>
+            <p className="text-xs text-[#6B7565]/60">© 2026 Central Bolivia. Hecho en Bolivia 🇧🇴</p>
             <p className="text-xs text-[#6B7565]/40 tracking-wide">PropTech · Santa Cruz · Bolivia</p>
           </div>
         </div>
       </footer>
     </div>
+  </>
   );
 }

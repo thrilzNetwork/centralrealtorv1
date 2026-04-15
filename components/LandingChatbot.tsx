@@ -194,13 +194,13 @@ export function LandingChatbot() {
                 padding: "8px 14px", borderRadius: 20,
                 boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
                 display: "flex", alignItems: "center", gap: 8,
-                fontFamily: "'Manrope', sans-serif", whiteSpace: "nowrap",
+                fontFamily: "'DM Sans', system-ui, sans-serif", whiteSpace: "nowrap",
               }}
             >
               <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />
               <span style={{ fontSize: 13, fontWeight: 600, color: "#fff" }}>¿Eres agente o broker?</span>
               <span role="button" onClick={e => { e.stopPropagation(); setTeaserVisible(false); }}
-                style={{ marginLeft: 2, color: "#666", fontSize: 14, cursor: "pointer" }}>✕</span>
+                style={{ marginLeft: 2, color: "#666", fontSize: 14, cursor: "pointer" }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
             </motion.button>
           )}
         </AnimatePresence>
@@ -221,12 +221,12 @@ export function LandingChatbot() {
               boxShadow: "0 20px 56px rgba(0,0,0,0.55)",
               display: "flex", flexDirection: "column", overflow: "hidden",
               border: "1px solid rgba(255,255,255,0.08)",
-              fontFamily: "'Manrope', sans-serif",
+              fontFamily: "'DM Sans', system-ui, sans-serif",
             }}
           >
             {/* Header */}
             <div style={{ background: "#262626", borderBottom: `2px solid ${PRIMARY}`, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 34, height: 34, borderRadius: "50%", background: PRIMARY + "22", border: `1px solid ${PRIMARY}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>🏠</div>
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: PRIMARY + "22", border: `1px solid ${PRIMARY}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{color: PRIMARY}}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
               <div style={{ flex: 1 }}>
                 <p style={{ color: "#fff", fontWeight: 700, fontSize: 13, margin: 0 }}>Central Bolivia</p>
                 <p style={{ color: PRIMARY, fontSize: 10, margin: 0, display: "flex", alignItems: "center", gap: 4 }}>
@@ -273,7 +273,7 @@ export function LandingChatbot() {
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
                     {activeStep.quickOptions?.map(opt => (
                       <motion.button key={opt} onClick={() => handleAnswer(opt)} whileTap={{ scale: 0.95 }}
-                        style={{ padding: "6px 11px", borderRadius: 20, border: `1.5px solid ${PRIMARY}`, background: "transparent", color: PRIMARY, fontSize: 11.5, cursor: "pointer", fontFamily: "'Manrope',sans-serif", fontWeight: 500 }}
+                        style={{ padding: "6px 11px", borderRadius: 20, border: `1.5px solid ${PRIMARY}`, background: "transparent", color: PRIMARY, fontSize: 11.5, cursor: "pointer", fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500 }}
                       >{opt}</motion.button>
                     ))}
                   </div>
@@ -284,7 +284,7 @@ export function LandingChatbot() {
                       onChange={e => setInputValue(e.target.value)}
                       onKeyDown={e => e.key === "Enter" && inputValue.trim() && handleAnswer(inputValue.trim())}
                       placeholder={activeStep.placeholder ?? "Escribe aquí…"}
-                      style={{ flex: 1, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "9px 13px", color: "#fff", fontSize: 12.5, fontFamily: "'Manrope',sans-serif", outline: "none" }}
+                      style={{ flex: 1, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "9px 13px", color: "#fff", fontSize: 12.5, fontFamily: "'DM Sans', system-ui, sans-serif", outline: "none" }}
                     />
                     <motion.button onClick={() => inputValue.trim() && handleAnswer(inputValue.trim())} whileTap={{ scale: 0.9 }} disabled={!inputValue.trim()}
                       style={{ width: 36, height: 36, borderRadius: 10, background: inputValue.trim() ? PRIMARY : "rgba(255,255,255,0.08)", border: "none", cursor: inputValue.trim() ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", flexShrink: 0, transition: "background 0.2s" }}
@@ -296,7 +296,7 @@ export function LandingChatbot() {
               <div style={{ padding: "10px 12px 16px", borderTop: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
                 <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, margin: "0 0 8px" }}>Nuestro equipo te contactará pronto.</p>
                 <motion.button onClick={() => setOpen(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  style={{ padding: "10px 24px", background: PRIMARY, border: "none", borderRadius: 10, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Manrope',sans-serif" }}
+                  style={{ padding: "10px 24px", background: PRIMARY, border: "none", borderRadius: 10, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', system-ui, sans-serif" }}
                 >Cerrar</motion.button>
               </div>
             )}

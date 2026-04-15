@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 
-export default function AccessGate() {
+export function AccessGate() {
   const [code, setCode] = useState("");
   const [error, setError] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
