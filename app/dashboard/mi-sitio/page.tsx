@@ -58,7 +58,7 @@ export default async function MiSitioPage() {
 
       <SiteCustomizerForm settings={profile as Parameters<typeof SiteCustomizerForm>[0]["settings"]} />
 
-      <BrandVoiceUpload initialVoice={profile?.brand_voice} />
+      <BrandVoiceUpload initialVoice={profile?.brand_voice ?? undefined} />
 
       <KnowledgeBaseUpload initialDocs={profile?.kb_documents as Parameters<typeof KnowledgeBaseUpload>[0]["initialDocs"]} />
     </div>

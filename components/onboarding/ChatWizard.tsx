@@ -33,6 +33,7 @@ const STEPS: Record<Step, { message: string; inputType?: Message["type"] }> = {
   brand:    { message: "¿Cómo se llama tu marca o agencia? (Ej: Inmobiliaria Sur, García Propiedades)", inputType: "input-text" },
   whatsapp: { message: "¿Cuál es tu número de WhatsApp? Los clientes lo usarán para contactarte. (Ej: +59171234567)", inputType: "input-whatsapp" },
   theme:    { message: "Elige la plantilla visual de tu portal:", inputType: "theme-picker" },
+  google_link: { message: "🎉 ¡Todo listo! Tu portal está activo. Antes de entrar, ¿quieres conectar tu cuenta de Google? Esto nos permitirá sincronizar tu calendario y enviar confirmaciones automáticas a tus clientes." },
   done:     { message: "🎉 ¡Todo listo! Estamos creando tu portal. Serás redirigido en un momento..." },
 };
 
