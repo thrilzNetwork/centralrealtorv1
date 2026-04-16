@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { revalidatePath } from "next/cache";
 
 export async function GET() {
   const supabase = await createClient();
@@ -63,9 +64,13 @@ export async function PATCH(request: NextRequest) {
         .select()
         .single();
       if (upsertError) return NextResponse.json({ error: upsertError.message }, { status: 500 });
+      revalidatePath("/dashboard");
       return NextResponse.json(upserted);
     }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  revalidatePath("/dashboard");
+  // Revalidate tenant public page so logo change is visible immediately
+  if (data?.slug) revalidatePath(`/${data.slug}`);
   return NextResponse.json(data);
 }

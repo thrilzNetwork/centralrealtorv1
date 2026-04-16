@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+export const maxDuration = 30;
+
 type PropertyType = "casa" | "departamento" | "terreno" | "oficina" | "local_comercial" | "otro";
 type ListingType = "venta" | "alquiler" | "anticrético";
 
@@ -166,7 +168,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file") as File | null;
     if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 });
     if (!file.name.toLowerCase().endsWith(".pdf")) return NextResponse.json({ error: "Solo se aceptan archivos PDF" }, { status: 400 });
-    if (file.size > 10 * 1024 * 1024) return NextResponse.json({ error: "El PDF no puede superar 10 MB" }, { status: 400 });
+    if (file.size > 5 * 1024 * 1024) return NextResponse.json({ error: "El PDF no puede superar 5 MB" }, { status: 400 });
 
     const buffer = Buffer.from(await file.arrayBuffer());
 

@@ -14,6 +14,7 @@ export function SimplePropertyForm() {
   const [scraping, setScraping] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scrapeUrl, setScrapeUrl] = useState("");
+  const [scrapeAttested, setScrapeAttested] = useState(false);
   const [importTab, setImportTab] = useState<"url" | "pdf">("url");
   const [pdfParsing, setPdfParsing] = useState(false);
   
@@ -31,6 +32,7 @@ export function SimplePropertyForm() {
   const [amenitiesText, setAmenitiesText] = useState("");
   const [listingStatus, setListingStatus] = useState("borrador");
   const [images, setImages] = useState<string[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
   
   // Coords from address autocomplete
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -104,6 +106,25 @@ export function SimplePropertyForm() {
     setCoords({ lat: s.lat, lng: s.lng });
   }
 
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    setUploadingImages(true);
+    setError(null);
+    const urls: string[] = [];
+    for (const file of files.slice(0, 20 - images.length)) {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("bucket", "listings");
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (res.ok && data.url) urls.push(data.url);
+    }
+    setImages(prev => [...prev, ...urls]);
+    setUploadingImages(false);
+    e.target.value = "";
+  }
+
   async function handleSave() {
     if (!title.trim()) {
       setError("El título es obligatorio");
@@ -173,7 +194,7 @@ export function SimplePropertyForm() {
             <p className="text-sm text-[#6B7565] mb-4">
               Pega el link de cualquier propiedad pública y los datos se completarán automáticamente.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-3 mb-3">
               <input
                 type="url"
                 value={scrapeUrl}
@@ -181,10 +202,21 @@ export function SimplePropertyForm() {
                 placeholder="https://c21.com.bo/v/resultados/... o cualquier URL"
                 className="flex-1 border border-[#D8D3C8] bg-white px-4 py-3 text-sm text-[#262626] rounded-sm placeholder:text-[#ACBFA4] focus:outline-none focus:border-[#FF7F11]"
               />
-              <Button onClick={handleScrape} loading={scraping} disabled={!scrapeUrl.trim()} variant="secondary">
+              <Button onClick={handleScrape} loading={scraping} disabled={!scrapeUrl.trim() || !scrapeAttested} variant="secondary">
                 {scraping ? "Extrayendo..." : "Extraer datos"}
               </Button>
             </div>
+            <label className="flex items-start gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={scrapeAttested}
+                onChange={(e) => setScrapeAttested(e.target.checked)}
+                className="mt-0.5 accent-[#FF7F11]"
+              />
+              <span className="text-xs text-[#6B7565]">
+                Confirmo que esta publicación es de acceso público y tengo derecho a importar su información. No extraeré contenido con derechos de autor sin autorización.
+              </span>
+            </label>
           </>
         ) : (
           <>
@@ -199,7 +231,7 @@ export function SimplePropertyForm() {
               )}
               <input type="file" accept=".pdf" className="hidden" onChange={handlePdfUpload} disabled={pdfParsing} />
             </label>
-            <p className="text-xs text-[#ACBFA4] mt-2">Máximo 10 MB. Funciona mejor con PDFs de texto (no imágenes escaneadas).</p>
+            <p className="text-xs text-[#ACBFA4] mt-2">Máximo 5 MB. Funciona con PDFs de texto; los PDFs escaneados (solo imágenes) no extraen datos.</p>
           </>
         )}
       </div>
@@ -251,30 +283,40 @@ export function SimplePropertyForm() {
             </div>
           )}
 
-          {/* Image preview if scraped */}
-          {images.length > 0 && (
-            <div className="mt-2">
-              <p className="label-caps text-[#6B7565] mb-2">Imágenes importadas ({images.length})</p>
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {images.map((img, i) => (
-                  <div key={i} className="relative w-20 h-20 flex-shrink-0 group">
-                    <div className="w-20 h-20 rounded-sm overflow-hidden border border-[#EAE7DC]">
-                      <img src={img} alt="" className="w-full h-full object-cover" />
+          {/* Images — upload manually or imported from scraper */}
+          <div className="flex flex-col gap-2">
+            <label className="label-caps text-[#6B7565]">Imágenes de la propiedad</label>
+            <label className={`cursor-pointer flex items-center justify-center gap-2 border-2 border-dashed border-[#D8D3C8] rounded-sm p-4 text-sm text-[#6B7565] transition-colors hover:border-[#FF7F11] hover:bg-[#FFF8F2] ${uploadingImages || images.length >= 20 ? "opacity-60 pointer-events-none" : ""}`}>
+              {uploadingImages ? (
+                <><div className="w-4 h-4 border-2 border-[#FF7F11] border-t-transparent rounded-full animate-spin" /> Subiendo...</>
+              ) : (
+                <><span className="text-lg">🖼️</span> Subir imágenes {images.length > 0 ? `(${images.length}/20)` : ""}</>
+              )}
+              <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} disabled={uploadingImages || images.length >= 20} />
+            </label>
+            {images.length > 0 && (
+              <>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {images.map((img, i) => (
+                    <div key={i} className="relative w-20 h-20 flex-shrink-0 group">
+                      <div className="w-20 h-20 rounded-sm overflow-hidden border border-[#EAE7DC]">
+                        <img src={img} alt="" className="w-full h-full object-cover" />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setImages(images.filter((_, idx) => idx !== i))}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#262626] text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-pointer hover:bg-red-600"
+                        aria-label="Eliminar imagen"
+                      >
+                        ✕
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setImages(images.filter((_, idx) => idx !== i))}
-                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#262626] text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-pointer hover:bg-red-600"
-                      aria-label="Eliminar imagen"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-[#6B7565] mt-1">Pasa el cursor sobre una imagen y haz clic en ✕ para eliminarla</p>
-            </div>
-          )}
+                  ))}
+                </div>
+                <p className="text-xs text-[#ACBFA4]">Pasa el cursor sobre una imagen y haz clic en ✕ para eliminarla</p>
+              </>
+            )}
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">

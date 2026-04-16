@@ -520,6 +520,7 @@ export function RealtorV1Page({ listings }: RealtorV1PageProps) {
         slug={profile.slug ?? ""}
         agentName={profile.full_name ?? "Asesor"}
         primaryColor={primary}
+        logoUrl={profile.logo_url}
       />
     </div>
   );

@@ -1,5 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,13 +26,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "listingId required for heart" }, { status: 400 });
     }
 
+    // Validate email format if provided
+    if (visitorEmail && !EMAIL_RE.test(visitorEmail)) {
+      return NextResponse.json({ error: "Correo electrónico inválido" }, { status: 400 });
+    }
+
+    // Sanitize phone — strip everything except digits, +, -, spaces
+    const cleanPhone = visitorPhone ? visitorPhone.replace(/[^\d+\-\s()]/g, "").trim() : null;
+
     const admin = createAdminClient();
 
     const insertPayload: Record<string, unknown> = {
       profile_id: profileId,
-      visitor_name: visitorName ?? null,
-      visitor_email: visitorEmail ?? null,
-      visitor_phone: visitorPhone ?? null,
+      visitor_name: visitorName ? String(visitorName).slice(0, 120) : null,
+      visitor_email: visitorEmail ? String(visitorEmail).slice(0, 255).toLowerCase() : null,
+      visitor_phone: cleanPhone,
       status: "nuevo",
     };
 
@@ -97,17 +108,46 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  // Require authentication; the user can only read their own leads
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { searchParams } = new URL(request.url);
-  const profileId = searchParams.get("profileId");
-  if (!profileId) return NextResponse.json({ error: "profileId required" }, { status: 400 });
+  const format = searchParams.get("format");
 
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("leads")
     .select("*, listings(title, slug)")
-    .eq("profile_id", profileId)
+    .eq("profile_id", user.id)
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (format === "csv") {
+    const rows = [
+      ["Nombre", "Email", "Teléfono", "Estado", "Propiedad", "Notas", "Fecha"].join(","),
+      ...(data ?? []).map((l) =>
+        [
+          `"${l.visitor_name ?? ""}"`,
+          `"${l.visitor_email ?? ""}"`,
+          `"${l.visitor_phone ?? ""}"`,
+          `"${l.status ?? ""}"`,
+          `"${(l.listings as { title?: string } | null)?.title ?? ""}"`,
+          `"${(l.notes ?? "").replace(/"/g, '""')}"`,
+          `"${new Date(l.created_at).toLocaleDateString("es-BO")}"`,
+        ].join(",")
+      ),
+    ].join("\n");
+
+    return new Response(rows, {
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": `attachment; filename="leads-${new Date().toISOString().slice(0, 10)}.csv"`,
+      },
+    });
+  }
+
   return NextResponse.json(data);
 }
