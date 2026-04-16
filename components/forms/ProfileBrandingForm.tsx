@@ -32,17 +32,31 @@ export function ProfileEditor({ profile }: { profile: Profile | null }) {
     if (!file) return;
     setUploadingLogo(true);
     setError(null);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("bucket", "logos");
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error ?? "Error al subir imagen");
-    } else if (data.url) {
-      setLogoUrl(data.url);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("bucket", "logos");
+      const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) {
+        setError(uploadData.error ?? "Error al subir imagen");
+        return;
+      }
+      const newUrl = uploadData.url as string;
+      setLogoUrl(newUrl);
+      // Auto-save the logo URL so it persists without requiring the user to click Save
+      const saveRes = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ logo_url: newUrl }),
+      });
+      if (!saveRes.ok) {
+        const saveData = await saveRes.json();
+        setError(saveData.error ?? "Logo subido pero no se pudo guardar. Guarda manualmente.");
+      }
+    } finally {
+      setUploadingLogo(false);
     }
-    setUploadingLogo(false);
   }
 
   async function handleSave(e: React.FormEvent) {

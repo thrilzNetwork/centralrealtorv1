@@ -29,6 +29,23 @@ export function LeadsBoard({ leads: initialLeads }: { leads: Lead[] }) {
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [filterStatus, setFilterStatus] = useState<LeadStatus | "all">("all");
+  const [exporting, setExporting] = useState(false);
+
+  async function handleExportCSV() {
+    setExporting(true);
+    try {
+      const res = await fetch("/api/leads?format=csv");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `leads-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  }
 
   const filtered = filterStatus === "all"
     ? leads
@@ -54,8 +71,9 @@ export function LeadsBoard({ leads: initialLeads }: { leads: Lead[] }) {
     <div className="flex flex-col lg:flex-row gap-6 min-h-[600px]">
       {/* List panel */}
       <div className="flex-1 min-w-0">
-        {/* Filter tabs */}
-        <div className="flex gap-2 mb-4 flex-wrap">
+        {/* Toolbar: filters + export */}
+        <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <div className="flex gap-2 flex-wrap">
           {(["all", "nuevo", "contactado", "en_seguimiento", "cerrado"] as const).map((s) => {
             const cfg = s === "all" ? { label: "Todos", color: "#262626", bg: "#E2E8CE" } : STATUS_CONFIG[s];
             const count = s === "all" ? leads.length : leads.filter((l) => l.status === s).length;
@@ -74,6 +92,14 @@ export function LeadsBoard({ leads: initialLeads }: { leads: Lead[] }) {
               </button>
             );
           })}
+        </div>
+          <button
+            onClick={handleExportCSV}
+            disabled={exporting || leads.length === 0}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#6B7565] border border-[#D8D3C8] rounded-sm hover:bg-[#F7F5EE] disabled:opacity-40 transition-colors"
+          >
+            {exporting ? "Exportando..." : "⬇ CSV"}
+          </button>
         </div>
 
         {filtered.length === 0 ? (

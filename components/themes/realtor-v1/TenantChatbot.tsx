@@ -9,9 +9,10 @@ interface TenantChatbotProps {
   slug: string;
   agentName: string;
   primaryColor?: string;
+  logoUrl?: string | null;
 }
 
-export function TenantChatbot({ slug, agentName, primaryColor = "#FF7F11" }: TenantChatbotProps) {
+export function TenantChatbot({ slug, agentName, primaryColor = "#FF7F11", logoUrl }: TenantChatbotProps) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: "model", text: `¡Hola! Soy el asistente de ${agentName}. ¿En qué puedo ayudarte hoy? 🏠` },
@@ -63,7 +64,13 @@ export function TenantChatbot({ slug, agentName, primaryColor = "#FF7F11" }: Ten
         style={{ backgroundColor: primaryColor }}
         aria-label="Abrir chat"
       >
-        {open ? <X className="w-6 h-6 text-white" /> : <MessageCircle className="w-6 h-6 text-white" />}
+        {open ? (
+          <X className="w-6 h-6 text-white" />
+        ) : logoUrl ? (
+          <img src={logoUrl} alt={agentName} className="w-8 h-8 rounded-full object-cover" />
+        ) : (
+          <MessageCircle className="w-6 h-6 text-white" />
+        )}
       </button>
 
       {/* Chat panel */}
@@ -71,8 +78,12 @@ export function TenantChatbot({ slug, agentName, primaryColor = "#FF7F11" }: Ten
         <div className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 flex flex-col rounded-sm shadow-2xl overflow-hidden border border-[#EAE7DC] bg-white animate-scale-in">
           {/* Header */}
           <div className="px-4 py-3 flex items-center gap-3" style={{ backgroundColor: primaryColor }}>
-            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-              <MessageCircle className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+              {logoUrl ? (
+                <img src={logoUrl} alt={agentName} className="w-full h-full object-cover" />
+              ) : (
+                <MessageCircle className="w-4 h-4 text-white" />
+              )}
             </div>
             <div>
               <p className="text-white text-sm font-medium leading-tight">{agentName}</p>
