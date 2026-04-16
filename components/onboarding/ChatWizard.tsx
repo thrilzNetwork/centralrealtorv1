@@ -31,7 +31,7 @@ const STEPS: Record<Step, { message: string; inputType?: Message["type"] }> = {
   password: { message: "Elige una contraseña segura (mínimo 8 caracteres).", inputType: "input-password" },
   name:     { message: "¿Cuál es tu nombre completo? (Aparecerá en tu portal)", inputType: "input-text" },
   brand:    { message: "¿Cómo se llama tu marca o agencia? (Ej: Inmobiliaria Sur, García Propiedades)", inputType: "input-text" },
-  whatsapp: { message: "¿Cuál es tu número de WhatsApp? Los clientes lo usarán para contactarte. (Ej: +59171234567)", inputType: "input-whatsapp" },
+   whatsapp: { message: "¿Cuál es tu número de WhatsApp? (Incluye el código de país, Ej: +591 71234567). Los clientes lo usarán para contactarte.", inputType: "input-whatsapp" },
   theme:    { message: "Elige la plantilla visual de tu portal:", inputType: "theme-picker" },
   done:     { message: "🎉 ¡Todo listo! Estamos creando tu portal. Serás redirigido en un momento..." },
 };
@@ -119,6 +119,11 @@ export function ChatWizard() {
       case "brand":
         setData((d) => ({ ...d, brandName: val }));
         agentReply("whatsapp");
+        break;
+
+      case "whatsapp":
+        setData((d) => ({ ...d, whatsapp: val }));
+        agentReply("theme");
         break;
 
       case "theme":
