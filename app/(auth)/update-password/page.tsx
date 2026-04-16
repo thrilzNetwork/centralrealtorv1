@@ -28,21 +28,26 @@ function UpdatePasswordInner() {
   const [error, setError] = useState<string | null>(null);
 
   // Exchange the PKCE code that Supabase appended to this URL
-  const exchangeCode = useCallback(async () => {
-    const code = searchParams.get("code");
-    if (!code) {
-      // No code — maybe user navigated here directly without a reset link
-      setStage("error");
-      return;
-    }
-    const supabase = createClient();
-    const { error: err } = await supabase.auth.exchangeCodeForSession(code);
-    if (err) {
-      setStage("error");
-    } else {
-      setStage("form");
-    }
-  }, [searchParams]);
+    const exchangeCode = useCallback(async () => {
+      const code = searchParams.get("code");
+      if (!code) {
+        setStage("error");
+        return;
+      }
+      const supabase = createClient();
+      
+      // If we are on localhost or a non-production environment, 
+      // we might need to handle the session recovery differently 
+      // or check if the user is already authenticated.
+      
+      const { error: err } = await supabase.auth.exchangeCodeForSession(code);
+      if (err) {
+        console.error("Exchange code error:", err);
+        setStage("error");
+      } else {
+        setStage("form");
+      }
+    }, [searchParams]);
 
   useEffect(() => {
     exchangeCode();
