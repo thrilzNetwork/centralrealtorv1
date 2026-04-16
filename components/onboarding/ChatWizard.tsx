@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 
-type Step = "welcome" | "social" | "email" | "password" | "name" | "brand" | "whatsapp" | "theme" | "google_link" | "done";
+type Step = "welcome" | "social" | "email" | "password" | "name" | "brand" | "whatsapp" | "theme" | "done";
 type MessageRole = "agent" | "user";
 
 interface Message {
@@ -33,7 +33,6 @@ const STEPS: Record<Step, { message: string; inputType?: Message["type"] }> = {
   brand:    { message: "¿Cómo se llama tu marca o agencia? (Ej: Inmobiliaria Sur, García Propiedades)", inputType: "input-text" },
   whatsapp: { message: "¿Cuál es tu número de WhatsApp? Los clientes lo usarán para contactarte. (Ej: +59171234567)", inputType: "input-whatsapp" },
   theme:    { message: "Elige la plantilla visual de tu portal:", inputType: "theme-picker" },
-  google_link: { message: "🎉 ¡Tu portal está activo! ¿Quieres conectar tu cuenta de Google? Esto sincronizará tu calendario y enviará confirmaciones automáticas a tus clientes." },
   done:     { message: "🎉 ¡Todo listo! Estamos creando tu portal. Serás redirigido en un momento..." },
 };
 
@@ -180,11 +179,10 @@ export function ChatWizard() {
         }
       }
 
-      // ── Step 4: Link Google Account (Optional) ───────────────────────────
-      addMessage("agent", STEPS.google_link.message);
-
-      setStep("google_link");
-      setLoading(false);
+      // ── Step 4: Redirect to dashboard ────────────────────────────────────
+      addMessage("agent", "🎉 ¡Tu portal está activo! Te estamos redirigiendo a tu oficina virtual...");
+      await new Promise((r) => setTimeout(r, 1500));
+      window.location.href = "/dashboard";
       return;
 
     } catch (err) {
@@ -197,7 +195,7 @@ export function ChatWizard() {
     }
   }
 
-  const isAwaitingInput  = step !== "welcome" && step !== "done" && step !== "google_link";
+  const isAwaitingInput  = step !== "welcome" && step !== "done";
   const showInput        = isAwaitingInput && STEPS[step].inputType !== "theme-picker";
   const showThemePicker  = step === "theme";
 
@@ -305,31 +303,6 @@ export function ChatWizard() {
             </div>
           )}
 
-          {/* Google Link Step */}
-          {step === "google_link" && !isTyping && (
-            <div className="flex flex-col gap-3 pl-10 animate-fade-up">
-              <div className="p-3 bg-white border border-[#D8D3C8] rounded-sm text-xs text-[#6B7565] leading-relaxed">
-                Al continuar, aceptas nuestros{" "}
-                <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#FF7F11] font-medium hover:underline">Términos de Servicio</a>
-                {" "}y{" "}
-                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[#FF7F11] font-medium hover:underline">Política de Privacidad</a>.
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => { window.location.href = "/api/auth/google-link"; }}
-                  size="sm"
-                >
-                  Conectar Google
-                </Button>
-                <button
-                  onClick={() => { window.location.href = "/dashboard"; }}
-                  className="text-xs text-[#6B7565] hover:text-[#262626] transition-colors px-3 py-2"
-                >
-                  Saltar por ahora →
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Welcome CTA */}
           {step === "welcome" && !isTyping && (

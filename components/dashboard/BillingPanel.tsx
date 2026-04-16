@@ -14,7 +14,7 @@ const PLANS = [
       "Portal con tu marca",
       "Propiedades ilimitadas",
       "CM Digital (Community Manager IA)",
-      "Google Calendar + Gmail Sync",
+      "AI Scheduler (agenda visitas automática)",
       "Web de Lujo (tema premium)",
     ],
     highlight: false,

@@ -64,7 +64,7 @@ export default async function HomePage() {
 
 // ─── Features ─────────────────────────────────────────────────
 const FEATURES = [
-  { icon: <Bot className="w-6 h-6" />, title: "Chatbot IA 24/7", desc: "Responde compradores, agenda visitas en tu Google Calendar y registra leads — conectado a tu base de conocimiento y tu voz de marca." },
+  { icon: <Bot className="w-6 h-6" />, title: "Chatbot IA 24/7", desc: "Responde compradores, agenda visitas automáticamente y registra leads — conectado a tu base de conocimiento y tu voz de marca." },
   { icon: <Sparkles className="w-6 h-6" />, title: "CM Digital", desc: "Genera posts para Instagram y Facebook por cada propiedad con tu voz. Contenido profesional listo para publicar en segundos." },
   { icon: <Video className="w-6 h-6" />, title: "Veo AI Video", desc: "Recorridos cinemáticos generados por IA para cada inmueble. Sin cámara, sin edición, sin costo de producción." },
   { icon: <Camera className="w-6 h-6" />, title: "Nano Banana Pro", desc: "Mejora automática de imágenes: luminosidad, nitidez y virtual staging con IA. Fotos profesionales desde tu celular." },
@@ -74,7 +74,7 @@ const FEATURES = [
 
 const AI_STACK = [
   { icon: <Bot className="w-5 h-5" />, name: "Chatbot IA", sub: "Gemini · RAG · Base de conocimiento" },
-  { icon: <CalendarCheck className="w-5 h-5" />, name: "AI Scheduler", sub: "Google Calendar · Gmail · Confirmación automática" },
+  { icon: <CalendarCheck className="w-5 h-5" />, name: "AI Scheduler", sub: "Agenda visitas · Confirmación automática · 24/7" },
   { icon: <Sparkles className="w-5 h-5" />, name: "CM Digital", sub: "Generación de contenido · Tu voz de marca" },
   { icon: <Video className="w-5 h-5" />, name: "Veo AI Video", sub: "Videos cinemáticos · Sin producción" },
   { icon: <Camera className="w-5 h-5" />, name: "Nano Banana Pro", sub: "Mejora de imágenes · Virtual staging" },
@@ -89,14 +89,14 @@ const STATS = [
 
 const ACTIVITY_FEED = [
   { icon: <Bot className="w-4 h-4" />, action: "Chatbot respondió '¿Cuánto cuesta el dpto en Equipetrol?'", detail: "Buyer: Carlos M. · enviado a tu WhatsApp", time: "11:47pm" },
-  { icon: <CalendarCheck className="w-4 h-4" />, action: "AI Scheduler agendó visita de Marco R.", detail: "Martes 9:00am · Confirmación enviada por Gmail", time: "12:03am" },
+  { icon: <CalendarCheck className="w-4 h-4" />, action: "AI Scheduler agendó visita de Marco R.", detail: "Martes 9:00am · Confirmación enviada automáticamente", time: "12:03am" },
   { icon: <Sparkles className="w-4 h-4" />, action: "CM Digital generó post para Casa en Urubichá", detail: "Caption + hashtags · Listo para publicar en Instagram", time: "7:30am" },
   { icon: <Zap className="w-4 h-4" />, action: "Lead Sniper capturó nuevo lead calificado", detail: "Ana Torres · +591 76... · Interesada en depto 2 dormitorios", time: "8:15am" },
   { icon: <Video className="w-4 h-4" />, action: "Veo AI completó video de Casa en zona Norte", detail: "Recorrido cinemático 60s · Listo para compartir", time: "9:00am" },
 ];
 
 const DEPARTMENTS = [
-  { icon: <Bot className="w-4 h-4" />, name: "Recepción 24/7", tools: "Chatbot IA · AI Scheduler · Gmail" },
+  { icon: <Bot className="w-4 h-4" />, name: "Recepción 24/7", tools: "Chatbot IA · AI Scheduler · WhatsApp" },
   { icon: <Sparkles className="w-4 h-4" />, name: "Marketing Digital", tools: "CM Digital · Voz de Marca" },
   { icon: <Video className="w-4 h-4" />, name: "Producción", tools: "Veo AI Video · Nano Banana Pro" },
   { icon: <Zap className="w-4 h-4" />, name: "CRM & Captación", tools: "Lead Sniper · Portal de propiedades" },
@@ -142,7 +142,7 @@ function MarketingPage() {
           </h1>
 
           <p className="text-[#6B7565] leading-relaxed max-w-xl mb-12" style={{ fontSize: "1.2rem" }}>
-            Tu chatbot IA responde compradores, agenda visitas en Google Calendar, genera posts para redes y produce videos cinemáticos de tus inmuebles — todo automático. Tú solo apareces a cerrar el negocio.
+            Tu chatbot IA responde compradores, agenda visitas automáticamente, genera posts para redes y produce videos cinemáticos de tus inmuebles — todo automático. Tú solo apareces a cerrar el negocio.
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
@@ -246,7 +246,7 @@ function MarketingPage() {
             </h2>
             <div className="flex flex-col divide-y divide-[#EAE7DC]">
               {[
-                { pain: "Un comprador a las 11pm no tiene quién le responda.", fix: "Tu chatbot IA responde, agenda la visita y confirma por Gmail — todo sin ti." },
+                { pain: "Un comprador a las 11pm no tiene quién le responda.", fix: "Tu chatbot IA responde, agenda la visita y envía confirmación automática — todo sin ti." },
                 { pain: "Publicar en redes toma horas que no tienes.", fix: "CM Digital genera posts con tu voz y tus colores, listos para publicar al instante." },
                 { pain: "Tus fotos no hacen justicia al inmueble.", fix: "Nano Banana Pro mejora cada imagen con IA. Veo AI genera el recorrido cinemático en segundos." },
               ].map((item, i) => (
@@ -330,7 +330,7 @@ function MarketingPage() {
         </div>
         <div className="grid sm:grid-cols-3 gap-0 divide-y sm:divide-y-0 sm:divide-x divide-[#EAE7DC]">
           {[
-            { step: "01", title: "Crea tu oficina virtual", desc: "El asistente configura tu portal, importa tu marca de Instagram y conecta Google Calendar. 2 minutos, sin código." },
+            { step: "01", title: "Crea tu oficina virtual", desc: "El asistente configura tu portal e importa tu marca de Instagram. 2 minutos, sin código." },
             { step: "02", title: "Carga tu portafolio", desc: "Importa propiedades desde C21 Bolivia u otros portales con un solo link. Fotos, precios y mapas — automático." },
             { step: "03", title: "La IA trabaja por ti", desc: "Tu chatbot agenda visitas, CM Digital publica en redes y Lead Sniper te avisa por WhatsApp cada vez que hay interés." },
           ].map((item) => (
@@ -422,7 +422,7 @@ function MarketingPage() {
 
         <div className="grid sm:grid-cols-2 gap-6 mb-12">
           {[
-            { title: "Pro Essential", price: "$49", per: "/mes", desc: "Tu oficina digital profesional con IA, lista en 2 minutos.", features: ["Portal con tu marca y colores", "Propiedades ilimitadas", "CM Digital (Community Manager IA)", "Google Calendar + Gmail Sync", "Web de Lujo (tema premium)"], highlight: false },
+            { title: "Pro Essential", price: "$49", per: "/mes", desc: "Tu oficina digital profesional con IA, lista en 2 minutos.", features: ["Portal con tu marca y colores", "Propiedades ilimitadas", "CM Digital (Community Manager IA)", "AI Scheduler (agenda visitas automática)", "Web de Lujo (tema premium)"], highlight: false },
             { title: "Elite Suite", price: "$69", per: "/mes", desc: "El estatus digital para el top 10% de agentes bolivianos.", features: ["Todo de Pro Essential", "Dominio propio incluido", "Nano Banana Pro (mejora de imágenes IA)", "Veo AI Video (recorridos cinemáticos)", "Soporte prioritario 24/7"], highlight: true },
           ].map((p) => (
             <div
@@ -536,8 +536,8 @@ function MarketingPage() {
             <div className="flex flex-col gap-1">
               <p className="text-xs text-[#6B7565]/60">© 2026 Central Bolivia. Hecho en Bolivia 🇧🇴</p>
               <div className="flex gap-4">
-                <Link href="/privacy" className="text-[10px] text-[#6B7565]/40 hover:text-white transition-colors">Privacidad</Link>
-                <Link href="/terms" className="text-[10px] text-[#6B7565]/40 hover:text-white transition-colors">Términos</Link>
+                <Link href="/privacy" className="text-xs text-[#6B7565] hover:text-white transition-colors">Privacidad</Link>
+                <Link href="/terms" className="text-xs text-[#6B7565] hover:text-white transition-colors">Términos</Link>
               </div>
             </div>
             <p className="text-xs text-[#6B7565]/40 tracking-wide">PropTech · Santa Cruz · Bolivia</p>
