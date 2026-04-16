@@ -29,13 +29,6 @@ export default function TermsPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-serif text-xl font-medium text-[#262626]">Cualquier disputa legal relacionada con Central Bolivia será regida por las leyes del estado donde reside Thirlz Network LLC en los Estados Unidos.</h2>
-        <p>
-          El servicio se proporciona "tal cual".
-        </p>
-      </section>
-
-      <section className="space-y-4">
         <h2 className="font-serif text-xl font-medium text-[#262626]">4. Uso de Inteligencia Artificial</h2>
         <p>
           Usted entiende que el contenido generado por IA (textos, videos y fotos) es una herramienta de apoyo. El usuario es responsable de revisar y validar la veracidad de la información de sus propiedades.
