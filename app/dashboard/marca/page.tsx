@@ -16,6 +16,21 @@ export default async function MarcaPage() {
     .eq("id", user.id)
     .single();
 
+  const { data: listingsData } = await supabase
+    .from("listings")
+    .select("id, title, city, price, currency")
+    .eq("profile_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  const listings = (listingsData ?? []) as Array<{
+    id: string;
+    title: string | null;
+    city: string | null;
+    price: number | null;
+    currency: string | null;
+  }>;
+
   return (
     <div className="animate-fade-up max-w-3xl">
       <div className="mb-8">
@@ -30,7 +45,7 @@ export default async function MarcaPage() {
           Genera creativos con IA, gestiona tu identidad de marca y construye tu kit de voz.
         </p>
       </div>
-      <BrandManager profile={profile} />
+      <BrandManager profile={profile} listings={listings} />
     </div>
   );
 }

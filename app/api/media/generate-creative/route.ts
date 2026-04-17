@@ -6,7 +6,7 @@ export const maxDuration = 30;
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-export type CreativeType = "logo_concept" | "social_post" | "tagline" | "color_palette" | "listing_desc";
+export type CreativeType = "logo_concept" | "social_post" | "tagline" | "color_palette" | "listing_desc" | "video_script";
 
 const PLATFORM_CHARS: Record<string, number> = {
   instagram: 2200,
@@ -20,11 +20,12 @@ export async function POST(request: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
-  const { type, platform, tone, listingTitle, customPrompt } = body as {
+  const { type, platform, tone, listingTitle, videoStyle, customPrompt } = body as {
     type: CreativeType;
     platform?: string;
     tone?: string;
     listingTitle?: string;
+    videoStyle?: string;
     customPrompt?: string;
   };
 
@@ -107,6 +108,34 @@ Entrega:
 
 En español, formato claro.`;
       break;
+
+    case "video_script": {
+      const style = (videoStyle ?? "cinematic").toLowerCase();
+      const styleLabel: Record<string, string> = {
+        cinematic:   "Cinematográfico",
+        aerial:      "Aéreo (Drone)",
+        walkthrough: "Recorrido",
+        lifestyle:   "Lifestyle",
+        luxury:      "Lujo",
+      };
+      label = `Guión de Video · ${styleLabel[style] ?? style}`;
+      prompt = `Eres un director creativo especializado en videos inmobiliarios para redes sociales.
+Crea un guión listo para producir en estilo "${styleLabel[style] ?? style}" para el agente "${agentName}" en ${city}.
+${brandVoice ? `Voz de marca: ${brandVoice}` : ""}
+${listingTitle ? `Propiedad protagonista: ${listingTitle}` : "Sin propiedad específica — estilo genérico de marca."}
+${customPrompt ? `Notas del agente: ${customPrompt}` : ""}
+
+Entrega en este orden y con estos encabezados exactos:
+1. **Concepto** — 2-3 líneas sobre la emoción y promesa del video.
+2. **Storyboard** — lista numerada de 6-10 tomas. Cada toma: tipo de plano, movimiento de cámara, duración en segundos.
+3. **Voz en off** — guión de narración listo para grabar (máximo 60 palabras).
+4. **Música y ritmo** — género sugerido + BPM aproximado.
+5. **Texto en pantalla** — 2-3 frases cortas que se sobreponen.
+6. **Call to action final** — una frase.
+
+Duración total 30-45 segundos, formato vertical 9:16 (Reels / TikTok). En español. Máximo 500 palabras total.`;
+      break;
+    }
 
     case "listing_desc":
       label = "Descripción de Propiedad";
