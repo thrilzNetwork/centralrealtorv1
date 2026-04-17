@@ -5,6 +5,15 @@ import { createClient } from "@/lib/supabase/client";
 
 type LeadStatus = "nuevo" | "contactado" | "en_seguimiento" | "cerrado";
 
+const WA_TEMPLATES = [
+  { id: "saludo",      label: "Saludo",       body: "Hola {name} 👋, soy de Central Bolivia. Vi tu interés en {listing}. ¿Cuándo puedo contactarte?" },
+  { id: "visita",      label: "Agendar visita", body: "Hola {name}, ¿te gustaría visitar {listing} esta semana? Dime qué día te viene mejor 🗓️" },
+  { id: "precio",      label: "Info precio",  body: "Hola {name}, el precio de {listing} es {price}. ¿Conversamos los detalles?" },
+  { id: "seguimiento", label: "Seguimiento",  body: "Hola {name} 😊, ¿pudiste revisar la info de {listing}? Estoy aquí para cualquier pregunta." },
+  { id: "cierre",      label: "Cierre",       body: "Hola {name}, si estás listo/a para hacer una oferta por {listing}, podemos avanzar hoy. 🤝" },
+  { id: "libre",       label: "Libre",        body: "" },
+];
+
 interface Lead {
   id: string;
   visitor_name: string | null;
@@ -30,6 +39,9 @@ export function LeadsBoard({ leads: initialLeads }: { leads: Lead[] }) {
   const [saving, setSaving] = useState(false);
   const [filterStatus, setFilterStatus] = useState<LeadStatus | "all">("all");
   const [exporting, setExporting] = useState(false);
+  const [showWaPanel, setShowWaPanel] = useState(false);
+  const [waTemplateId, setWaTemplateId] = useState("saludo");
+  const [waMessage, setWaMessage] = useState("");
 
   async function handleExportCSV() {
     setExporting(true);
@@ -62,9 +74,21 @@ export function LeadsBoard({ leads: initialLeads }: { leads: Lead[] }) {
     setSaving(false);
   }
 
+  function fillTemplate(templateId: string, lead: Lead): string {
+    const tpl = WA_TEMPLATES.find(t => t.id === templateId);
+    if (!tpl) return "";
+    return tpl.body
+      .replace(/{name}/g, lead.visitor_name ?? "")
+      .replace(/{listing}/g, lead.listings?.title ?? "la propiedad")
+      .replace(/{price}/g, "consultar precio");
+  }
+
   function openLead(lead: Lead) {
     setSelected(lead);
     setNotes(lead.notes ?? "");
+    setShowWaPanel(false);
+    setWaTemplateId("saludo");
+    setWaMessage(fillTemplate("saludo", lead));
   }
 
   return (
@@ -188,13 +212,63 @@ export function LeadsBoard({ leads: initialLeads }: { leads: Lead[] }) {
               </a>
             )}
             {selected.visitor_phone && (
-              <a href={`https://wa.me/${selected.visitor_phone.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-[#262626] hover:text-[#25d366] transition-colors">
-                <svg className="w-4 h-4 text-[#ACBFA4]" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
-                  <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.529 5.859L0 24l6.335-1.607A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.914 0-3.71-.5-5.27-1.377L2.5 21.5l.907-3.992A9.95 9.95 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
-                </svg>
-                {selected.visitor_phone}
-              </a>
+              <div className="flex flex-col gap-0">
+                <button
+                  onClick={() => setShowWaPanel(v => !v)}
+                  className="flex items-center gap-2 text-sm text-[#262626] hover:text-[#25d366] transition-colors"
+                >
+                  <svg className="w-4 h-4 text-[#ACBFA4]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.529 5.859L0 24l6.335-1.607A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.914 0-3.71-.5-5.27-1.377L2.5 21.5l.907-3.992A9.95 9.95 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+                  </svg>
+                  <span>{selected.visitor_phone}</span>
+                  <span className="ml-auto text-[10px] text-[#FF7F11] font-medium">{showWaPanel ? "▲ cerrar" : "💬 enviar"}</span>
+                </button>
+
+                {showWaPanel && (
+                  <div className="mt-3 border border-[#25d366]/30 rounded-sm p-3 bg-[#f0fff4] flex flex-col gap-3">
+                    <p className="label-caps text-[#25d366]">Plantilla de mensaje</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {WA_TEMPLATES.map(t => (
+                        <button
+                          key={t.id}
+                          onClick={() => {
+                            setWaTemplateId(t.id);
+                            setWaMessage(fillTemplate(t.id, selected));
+                          }}
+                          className="px-2.5 py-1 rounded-sm text-xs font-medium border transition-all"
+                          style={waTemplateId === t.id
+                            ? { background: "#25d366", color: "#fff", borderColor: "#25d366" }
+                            : { background: "#fff", color: "#6B7565", borderColor: "#D8D3C8" }}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                    <textarea
+                      value={waMessage}
+                      onChange={e => setWaMessage(e.target.value)}
+                      rows={4}
+                      className="w-full border border-[#D8D3C8] rounded-sm px-3 py-2 text-sm resize-none focus:outline-none focus:border-[#25d366]"
+                      placeholder="Escribe tu mensaje..."
+                    />
+                    <button
+                      onClick={() => {
+                        const phone = selected.visitor_phone!.replace(/\D/g, "");
+                        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(waMessage)}`, "_blank");
+                        const timestamp = new Date().toLocaleString("es-BO");
+                        const logEntry = `\n[WhatsApp ${timestamp}]: ${waMessage}`;
+                        const newNotes = (notes || "") + logEntry;
+                        setNotes(newNotes);
+                        updateLead(selected.id, { notes: newNotes });
+                      }}
+                      className="w-full py-2 bg-[#25d366] text-white text-sm font-medium rounded-sm hover:bg-[#1ea952] transition-colors"
+                    >
+                      Abrir WhatsApp →
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 

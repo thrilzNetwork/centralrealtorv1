@@ -24,8 +24,9 @@ interface Listing {
 interface GeneratedAsset {
   id: string;
   label: string;
-  type: CreativeType;
+  type: string;
   content: string;
+  imageUrl?: string;
   platform: string | null;
   generatedAt: string;
 }
@@ -71,6 +72,12 @@ const COLOR_PRESETS = [
   { name: "Vino",    value: "#9B1C1C" },
 ];
 
+const IMAGE_CARDS = [
+  { value: "image_social",        label: "Imagen Social",     icon: "🖼️", desc: "Imagen IA para redes sociales", color: "#06B6D4" },
+  { value: "image_property_card", label: "Tarjeta Propiedad", icon: "🏡", desc: "Tarjeta visual de propiedad",   color: "#F97316" },
+] as const;
+type ImageCreativeType = "image_social" | "image_property_card";
+
 const STORAGE_KEY = "brand_assets_v2";
 
 function loadAssets(): GeneratedAsset[] {
@@ -95,7 +102,7 @@ export function BrandManager({
   const [tab, setTab] = useState<"crear" | "biblioteca" | "identidad">("crear");
 
   // ── Studio state ──
-  const [creativeType, setCreativeType] = useState<CreativeType>("social_post");
+  const [creativeType, setCreativeType] = useState<string>("social_post");
   const [platform, setPlatform] = useState("instagram");
   const [tone, setTone] = useState("empatico");
   const [videoStyle, setVideoStyle] = useState("cinematic");
@@ -139,22 +146,30 @@ export function BrandManager({
     return manualListingText || undefined;
   }
 
+  const isImageType = (t: string): t is ImageCreativeType =>
+    t === "image_social" || t === "image_property_card";
+
   async function handleGenerate() {
     setGenerating(true);
     setGenError(null);
     setResult(null);
     try {
-      const res = await fetch("/api/media/generate-creative", {
+      const isImage = isImageType(creativeType);
+      const endpoint = isImage ? "/api/media/generate-image" : "/api/media/generate-creative";
+      const body = isImage
+        ? { type: creativeType, listingTitle: listingTitle(), customPrompt: customPrompt || undefined }
+        : {
+            type: creativeType,
+            platform: creativeType === "social_post" ? platform : undefined,
+            tone: creativeType === "social_post" ? tone : undefined,
+            videoStyle: creativeType === "video_script" ? videoStyle : undefined,
+            listingTitle: listingTitle(),
+            customPrompt: customPrompt || undefined,
+          };
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: creativeType,
-          platform: creativeType === "social_post" ? platform : undefined,
-          tone: creativeType === "social_post" ? tone : undefined,
-          videoStyle: creativeType === "video_script" ? videoStyle : undefined,
-          listingTitle: listingTitle(),
-          customPrompt: customPrompt || undefined,
-        }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error al generar");
@@ -163,7 +178,8 @@ export function BrandManager({
         label: data.label,
         type: data.type,
         content: data.content,
-        platform: data.platform,
+        imageUrl: data.imageUrl,
+        platform: data.platform ?? null,
         generatedAt: data.generatedAt,
       };
       setResult(asset);
@@ -185,13 +201,21 @@ export function BrandManager({
   }
 
   function handleDownload(asset: GeneratedAsset) {
-    const blob = new Blob([asset.content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${asset.label.toLowerCase().replace(/\s+/g, "-")}-${asset.id.slice(0, 8)}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const name = asset.label.toLowerCase().replace(/\s+/g, "-") + "-" + asset.id.slice(0, 8);
+    if (asset.imageUrl) {
+      const a = document.createElement("a");
+      a.href = asset.imageUrl;
+      a.download = `${name}.png`;
+      a.click();
+    } else {
+      const blob = new Blob([asset.content], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${name}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
   }
 
   function handleDeleteAsset(id: string) {
@@ -287,8 +311,11 @@ export function BrandManager({
     }
   }
 
-  const needsProperty = creativeType === "social_post" || creativeType === "listing_desc" || creativeType === "video_script";
-  const selectedCard = CREATIVE_CARDS.find(c => c.value === creativeType)!;
+  const needsProperty = ["social_post", "listing_desc", "video_script", "image_social", "image_property_card"].includes(creativeType);
+  const selectedCard =
+    CREATIVE_CARDS.find(c => c.value === creativeType) ??
+    IMAGE_CARDS.find(c => c.value === creativeType) ??
+    CREATIVE_CARDS[0];
 
   return (
     <div className="flex flex-col gap-6">
@@ -335,24 +362,50 @@ export function BrandManager({
       ══════════════════════════════════════════════════════ */}
       {tab === "crear" && (
         <div className="flex flex-col gap-5">
-          {/* Creative type grid — Canva-style */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {CREATIVE_CARDS.map(({ value, label, icon, desc, color }) => (
-              <button key={value} onClick={() => { setCreativeType(value); setResult(null); setGenError(null); }}
-                className="group flex flex-col gap-2 p-4 rounded-sm border text-left transition-all hover:-translate-y-0.5 hover:shadow-md"
-                style={creativeType === value
-                  ? { borderColor: color, background: `${color}0f`, boxShadow: `0 0 0 1px ${color}40` }
-                  : { borderColor: "#EAE7DC", background: "#fff" }}>
-                <div className="w-10 h-10 rounded-sm flex items-center justify-center text-xl"
-                  style={{ backgroundColor: `${color}18` }}>
-                  {icon}
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-[#262626] leading-tight">{label}</p>
-                  <p className="text-[10px] text-[#6B7565] mt-0.5 leading-tight">{desc}</p>
-                </div>
-              </button>
-            ))}
+          {/* Creative type grid — text creatives */}
+          <div className="flex flex-col gap-2">
+            <p className="label-caps text-[#6B7565]">✦ Texto con IA</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {CREATIVE_CARDS.map(({ value, label, icon, desc, color }) => (
+                <button key={value} onClick={() => { setCreativeType(value); setResult(null); setGenError(null); }}
+                  className="group flex flex-col gap-2 p-4 rounded-sm border text-left transition-all hover:-translate-y-0.5 hover:shadow-md"
+                  style={creativeType === value
+                    ? { borderColor: color, background: `${color}0f`, boxShadow: `0 0 0 1px ${color}40` }
+                    : { borderColor: "#EAE7DC", background: "#fff" }}>
+                  <div className="w-10 h-10 rounded-sm flex items-center justify-center text-xl"
+                    style={{ backgroundColor: `${color}18` }}>
+                    {icon}
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-[#262626] leading-tight">{label}</p>
+                    <p className="text-[10px] text-[#6B7565] mt-0.5 leading-tight">{desc}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Image creative grid */}
+          <div className="flex flex-col gap-2">
+            <p className="label-caps text-[#6B7565]">🖼️ Imagen con IA</p>
+            <div className="grid grid-cols-2 gap-3">
+              {IMAGE_CARDS.map(({ value, label, icon, desc, color }) => (
+                <button key={value} onClick={() => { setCreativeType(value); setResult(null); setGenError(null); }}
+                  className="group flex flex-col gap-2 p-4 rounded-sm border text-left transition-all hover:-translate-y-0.5 hover:shadow-md"
+                  style={creativeType === value
+                    ? { borderColor: color, background: `${color}0f`, boxShadow: `0 0 0 1px ${color}40` }
+                    : { borderColor: "#EAE7DC", background: "#fff" }}>
+                  <div className="w-10 h-10 rounded-sm flex items-center justify-center text-xl"
+                    style={{ backgroundColor: `${color}18` }}>
+                    {icon}
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-[#262626] leading-tight">{label}</p>
+                    <p className="text-[10px] text-[#6B7565] mt-0.5 leading-tight">{desc}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Options panel */}
@@ -453,7 +506,9 @@ export function BrandManager({
               <Button onClick={handleGenerate} loading={generating} disabled={generating}>
                 {generating ? "Generando con IA..." : `Generar ${selectedCard.label}`}
               </Button>
-              <span className="text-xs text-[#ACBFA4]">Gemini · ~$0.00</span>
+              <span className="text-xs text-[#ACBFA4]">
+                {isImageType(creativeType) ? "Gemini Image · ~$0.04" : "Gemini Flash · ~$0.00"}
+              </span>
             </div>
           </div>
 
@@ -478,9 +533,14 @@ export function BrandManager({
                   </button>
                 </div>
               </div>
-              <div className="bg-[#F7F5EE] rounded-sm p-4 max-h-96 overflow-y-auto">
-                <pre className="text-sm text-[#262626] whitespace-pre-wrap leading-relaxed font-sans">{result.content}</pre>
-              </div>
+              {result.imageUrl ? (
+                <img src={result.imageUrl} alt={result.label}
+                  className="w-full rounded-sm border border-[#EAE7DC] max-h-96 object-contain bg-[#F7F5EE]" />
+              ) : (
+                <div className="bg-[#F7F5EE] rounded-sm p-4 max-h-96 overflow-y-auto">
+                  <pre className="text-sm text-[#262626] whitespace-pre-wrap leading-relaxed font-sans">{result.content}</pre>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -505,21 +565,34 @@ export function BrandManager({
               {assets.map(asset => (
                 <div key={asset.id} className="bg-white border border-[#EAE7DC] rounded-sm p-4 flex flex-col gap-3">
                   <div className="flex items-start justify-between gap-3 flex-wrap">
-                    <div className="min-w-0">
-                      <span className="label-caps text-[#FF7F11]">{asset.label}</span>
-                      {asset.platform && <span className="ml-2 text-xs text-[#6B7565]">· {asset.platform}</span>}
-                      <p className="text-xs text-[#ACBFA4] mt-0.5">{new Date(asset.generatedAt).toLocaleString("es-BO")}</p>
+                    <div className="flex items-center gap-3 min-w-0">
+                      {asset.imageUrl && (
+                        <img src={asset.imageUrl} alt={asset.label}
+                          className="w-12 h-12 object-cover rounded-sm border border-[#EAE7DC] flex-shrink-0" />
+                      )}
+                      <div className="min-w-0">
+                        <span className="label-caps text-[#FF7F11]">{asset.label}</span>
+                        {asset.platform && <span className="ml-2 text-xs text-[#6B7565]">· {asset.platform}</span>}
+                        <p className="text-xs text-[#ACBFA4] mt-0.5">{new Date(asset.generatedAt).toLocaleString("es-BO")}</p>
+                      </div>
                     </div>
                     <div className="flex gap-1.5 flex-shrink-0">
-                      <button onClick={() => handleCopy(asset.content)}
-                        className="px-2.5 py-1 text-xs border border-[#D8D3C8] rounded-sm hover:bg-[#F7F5EE]">Copiar</button>
+                      {!asset.imageUrl && (
+                        <button onClick={() => handleCopy(asset.content)}
+                          className="px-2.5 py-1 text-xs border border-[#D8D3C8] rounded-sm hover:bg-[#F7F5EE]">Copiar</button>
+                      )}
                       <button onClick={() => handleDownload(asset)}
                         className="px-2.5 py-1 text-xs border border-[#D8D3C8] rounded-sm hover:bg-[#F7F5EE]">⬇</button>
                       <button onClick={() => handleDeleteAsset(asset.id)}
                         className="px-2.5 py-1 text-xs border border-red-100 text-red-400 rounded-sm hover:bg-red-50">✕</button>
                     </div>
                   </div>
-                  <p className="text-sm text-[#6B7565] line-clamp-3 whitespace-pre-wrap">{asset.content}</p>
+                  {asset.imageUrl ? (
+                    <img src={asset.imageUrl} alt={asset.label}
+                      className="w-full max-h-48 object-contain rounded-sm bg-[#F7F5EE]" />
+                  ) : (
+                    <p className="text-sm text-[#6B7565] line-clamp-3 whitespace-pre-wrap">{asset.content}</p>
+                  )}
                 </div>
               ))}
             </>
