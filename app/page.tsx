@@ -536,6 +536,7 @@ function MarketingPage() {
             <div className="flex flex-col gap-1">
               <p className="text-xs text-[#6B7565]/60">© 2026 Central Bolivia. Hecho en Bolivia 🇧🇴</p>
               <div className="flex gap-4">
+                <Link href="/afiliados" className="text-xs text-[#6B7565] hover:text-white transition-colors">Afiliados</Link>
                 <Link href="/privacy" className="text-xs text-[#6B7565] hover:text-white transition-colors">Privacidad</Link>
                 <Link href="/terms" className="text-xs text-[#6B7565] hover:text-white transition-colors">Términos</Link>
               </div>

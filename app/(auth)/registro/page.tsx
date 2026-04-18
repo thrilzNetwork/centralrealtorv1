@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { readStoredRefCode, clearStoredRefCode } from "@/components/affiliate/RefCapture";
 
 export default function RegistroPage() {
   const router = useRouter();
@@ -21,12 +22,17 @@ export default function RegistroPage() {
     setLoading(true);
     setError(null);
 
+    const refCode = readStoredRefCode();
+
     const supabase = createClient();
     const { error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName },
+        data: {
+          full_name: fullName,
+          ...(refCode ? { referral_code_used: refCode } : {}),
+        },
         emailRedirectTo: `${window.location.origin}/api/auth/callback`,
       },
     });
@@ -35,6 +41,17 @@ export default function RegistroPage() {
       setError(authError.message);
       setLoading(false);
       return;
+    }
+
+    // Attribute to affiliate (fire-and-forget)
+    if (refCode) {
+      fetch("/api/affiliate/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: refCode, email }),
+      })
+        .then(() => clearStoredRefCode())
+        .catch(() => {});
     }
 
     setSuccess(true);
