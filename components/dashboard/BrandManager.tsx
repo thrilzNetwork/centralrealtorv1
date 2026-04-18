@@ -78,17 +78,7 @@ const IMAGE_CARDS = [
 ] as const;
 type ImageCreativeType = "image_social" | "image_property_card";
 
-const STORAGE_KEY = "brand_assets_v2";
-
-function loadAssets(): GeneratedAsset[] {
-  if (typeof window === "undefined") return [];
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]"); }
-  catch { return []; }
-}
-function saveAssets(assets: GeneratedAsset[]) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(assets.slice(0, 50)));
-}
+// Assets are persisted in Supabase via /api/brand-assets
 
 // ─── Component ───────────────────────────────────────────────
 
@@ -114,6 +104,7 @@ export function BrandManager({
   const [result, setResult] = useState<GeneratedAsset | null>(null);
   const [copied, setCopied] = useState(false);
   const [assets, setAssets] = useState<GeneratedAsset[]>([]);
+  const [loadingAssets, setLoadingAssets] = useState(false);
 
   // ── Identidad state ──
   const [logoUrl, setLogoUrl] = useState(profile?.logo_url ?? "");
@@ -130,7 +121,24 @@ export function BrandManager({
   const [savedIdentidad, setSavedIdentidad] = useState(false);
   const [idError, setIdError] = useState<string | null>(null);
 
-  useEffect(() => { setAssets(loadAssets()); }, []);
+  useEffect(() => {
+    setLoadingAssets(true);
+    fetch("/api/brand-assets")
+      .then(r => r.json())
+      .then(d => {
+        if (d.assets) setAssets(d.assets.map((a: Record<string, unknown>) => ({
+          id:          a.id as string,
+          label:       (a.label as string) ?? "",
+          type:        a.type as string,
+          content:     (a.content as string) ?? "",
+          imageUrl:    (a.image_url as string | undefined) ?? undefined,
+          platform:    (a.platform as string | null) ?? null,
+          generatedAt: a.created_at as string,
+        })));
+      })
+      .catch(() => {})
+      .finally(() => setLoadingAssets(false));
+  }, []);
 
   // ── Helpers ──
   function listingTitle(): string | undefined {
@@ -173,19 +181,30 @@ export function BrandManager({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error al generar");
+      // Persist to Supabase
+      const saveRes = await fetch("/api/brand-assets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type:      data.type,
+          label:     data.label,
+          content:   data.content ?? null,
+          image_url: data.imageUrl ?? null,
+          platform:  data.platform ?? null,
+        }),
+      });
+      const saved = await saveRes.json();
       const asset: GeneratedAsset = {
-        id: crypto.randomUUID(),
-        label: data.label,
-        type: data.type,
-        content: data.content,
-        imageUrl: data.imageUrl,
-        platform: data.platform ?? null,
-        generatedAt: data.generatedAt,
+        id:          saved.asset?.id ?? crypto.randomUUID(),
+        label:       data.label,
+        type:        data.type,
+        content:     data.content,
+        imageUrl:    data.imageUrl,
+        platform:    data.platform ?? null,
+        generatedAt: saved.asset?.created_at ?? data.generatedAt,
       };
       setResult(asset);
-      const updated = [asset, ...assets];
-      setAssets(updated);
-      saveAssets(updated);
+      setAssets((prev: GeneratedAsset[]) => [asset, ...prev]);
     } catch (err) {
       setGenError(err instanceof Error ? err.message : "Error al generar");
     } finally {
@@ -219,10 +238,9 @@ export function BrandManager({
   }
 
   function handleDeleteAsset(id: string) {
-    const updated = assets.filter((a: GeneratedAsset) => a.id !== id);
-    setAssets(updated);
-    saveAssets(updated);
+    setAssets(prev => prev.filter((a: GeneratedAsset) => a.id !== id));
     if (result?.id === id) setResult(null);
+    fetch(`/api/brand-assets?id=${id}`, { method: "DELETE" }).catch(() => {});
   }
 
   // ── Identidad handlers ──
@@ -551,7 +569,11 @@ export function BrandManager({
       ══════════════════════════════════════════════════════ */}
       {tab === "biblioteca" && (
         <div className="flex flex-col gap-3">
-          {assets.length === 0 ? (
+          {loadingAssets ? (
+            <div className="bg-white border border-[#EAE7DC] rounded-sm p-10 text-center">
+              <p className="text-[#6B7565] text-sm">Cargando biblioteca…</p>
+            </div>
+          ) : assets.length === 0 ? (
             <div className="bg-white border border-[#EAE7DC] rounded-sm p-10 text-center">
               <p className="text-2xl mb-2">📂</p>
               <p className="text-[#6B7565] text-sm">Aún no has generado ningún creativo.</p>
@@ -561,7 +583,7 @@ export function BrandManager({
             </div>
           ) : (
             <>
-              <p className="text-xs text-[#6B7565]">{assets.length} creativos guardados en este dispositivo.</p>
+              <p className="text-xs text-[#6B7565]">{assets.length} creativos guardados.</p>
               {assets.map(asset => (
                 <div key={asset.id} className="bg-white border border-[#EAE7DC] rounded-sm p-4 flex flex-col gap-3">
                   <div className="flex items-start justify-between gap-3 flex-wrap">

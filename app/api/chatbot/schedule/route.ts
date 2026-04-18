@@ -49,25 +49,19 @@ export async function POST(request: NextRequest) {
       .eq("id", profile_id)
       .single();
 
-    // ── No Google token → return placeholder slots ──────────────────────────
+    // ── No Google token → surface explicit requirement ──────────────────────
+    // Never return fake slots. The UI must render a "connect Google Calendar"
+    // prompt so the visitor is not misled into believing times are real.
     if (!profile?.google_refresh_token) {
-      const now = new Date();
-      const placeholderSlots: string[] = [];
-      let checked = new Date(now);
-      checked.setDate(checked.getDate() + 1);
-      checked.setHours(WORK_START_HOUR, 0, 0, 0);
-
-      while (placeholderSlots.length < 3) {
-        const dow = checked.getDay();
-        if (dow !== 0 && dow !== 6) {
-          placeholderSlots.push(formatSlot(checked));
-          checked = new Date(checked.getTime() + 24 * 60 * 60 * 1000);
-          checked.setHours(WORK_START_HOUR + placeholderSlots.length * 2, 0, 0, 0);
-        } else {
-          checked.setDate(checked.getDate() + 1);
-        }
-      }
-      return NextResponse.json({ slots: placeholderSlots, calendar_linked: false });
+      return NextResponse.json(
+        {
+          slots: [],
+          calendar_linked: false,
+          needsGoogleAuth: true,
+          message: "El asesor aún no conectó Google Calendar. Pide un horario por WhatsApp o email.",
+        },
+        { status: 200 }
+      );
     }
 
     const oauth2 = buildOAuth2(profile.google_refresh_token);

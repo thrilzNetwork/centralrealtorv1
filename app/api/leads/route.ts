@@ -4,6 +4,22 @@ import { createClient } from "@/lib/supabase/server";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+function scoreAndTier(data: {
+  visitorPhone?: string | null;
+  visitorEmail?: string | null;
+  message?: string | null;
+}): { score: number; score_tier: "hot" | "warm" | "cold" } {
+  let s = 0;
+  if (data.visitorPhone) s += 30;
+  if (data.visitorEmail) s += 20;
+  if ((data.message?.length ?? 0) > 50) s += 20;
+  const lower = data.message?.toLowerCase() ?? "";
+  if (/precio|costo|valor|cuánto|cuanto/.test(lower)) s += 15;
+  if (/visita|ver|recorri|conocer/.test(lower)) s += 15;
+  const tier: "hot" | "warm" | "cold" = s >= 70 ? "hot" : s >= 40 ? "warm" : "cold";
+  return { score: s, score_tier: tier };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -36,12 +52,16 @@ export async function POST(request: NextRequest) {
 
     const admin = createAdminClient();
 
+    const { score, score_tier } = scoreAndTier({ visitorPhone: cleanPhone, visitorEmail, message });
+
     const insertPayload: Record<string, unknown> = {
       profile_id: profileId,
       visitor_name: visitorName ? String(visitorName).slice(0, 120) : null,
       visitor_email: visitorEmail ? String(visitorEmail).slice(0, 255).toLowerCase() : null,
       visitor_phone: cleanPhone,
       status: "nuevo",
+      score,
+      score_tier,
     };
 
     // listing_id is optional (contact_form can come from homepage)
@@ -100,6 +120,48 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ profile_id: profileId, subject: emailSubject, body: emailBody }),
     }).catch(() => {/* best-effort */});
 
+    // Auto-responder to visitor if they provided email
+    if (visitorEmail) {
+      const { data: realtorProfile } = await admin
+        .from("profiles")
+        .select("full_name, whatsapp_number")
+        .eq("id", profileId)
+        .single();
+      const realtorName = realtorProfile?.full_name ?? "El asesor";
+      const visitorAutoSubject = "Recibimos tu consulta — Central Bolivia";
+      const visitorAutoBody = [
+        `Hola ${visitorName ?? ""}👋`,
+        "",
+        `${realtorName} ya recibió tu mensaje y te contactará pronto.`,
+        "Mientras tanto, sigue explorando propiedades en tu portal.",
+        "",
+        `${siteUrl}`,
+        "",
+        "Central Bolivia",
+      ].join("\n");
+      fetch(`${siteUrl}/api/notifications/email/visitor`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to_email: visitorEmail,
+          to_name: visitorName ?? "",
+          subject: visitorAutoSubject,
+          body: visitorAutoBody,
+          profile_id: profileId,
+        }),
+      }).catch(() => {});
+    }
+
+    // WhatsApp notification to realtor via Twilio (best-effort)
+    fetch(`${siteUrl}/api/notifications/whatsapp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        profile_id: profileId,
+        message: `🏠 Nuevo lead${score_tier === "hot" ? " 🔥 HOT" : score_tier === "warm" ? " ☀️ cálido" : ""}: *${visitorName ?? "Visitante"}*${visitorEmail ? ` (${visitorEmail})` : ""}${cleanPhone ? ` · ${cleanPhone}` : ""}. Score ${score}/100.`,
+      }),
+    }).catch(() => {});
+
     return NextResponse.json({ success: true, leadId: lead.id });
   } catch (err) {
     console.error("leads route error:", err);
@@ -128,7 +190,8 @@ export async function GET(request: NextRequest) {
   if (format === "csv") {
     const rows = [
       ["Nombre", "Email", "Teléfono", "Estado", "Propiedad", "Notas", "Fecha"].join(","),
-      ...(data ?? []).map((l) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ...(data ?? []).map((l: any) =>
         [
           `"${l.visitor_name ?? ""}"`,
           `"${l.visitor_email ?? ""}"`,

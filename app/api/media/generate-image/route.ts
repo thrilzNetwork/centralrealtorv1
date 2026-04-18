@@ -1,12 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export const maxDuration = 30;
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+export const maxDuration = 60;
 
 export type ImageCreativeType = "image_social" | "image_property_card";
+
+const IMAGE_MODEL = "gemini-2.5-flash-image-preview";
+const GEMINI_REST = (model: string) =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -65,23 +66,43 @@ Requirements:
     return NextResponse.json({ error: "Invalid image type" }, { status: 400 });
   }
 
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" } as any);
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json(
+      { error: "GEMINI_API_KEY no está configurado en el servidor." },
+      { status: 500 }
+    );
+  }
 
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      generationConfig: { responseModalities: ["TEXT", "IMAGE"] } as any,
+  try {
+    const resp = await fetch(`${GEMINI_REST(IMAGE_MODEL)}?key=${apiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
+      }),
     });
 
-    const parts = result.response.candidates?.[0]?.content?.parts ?? [];
+    if (!resp.ok) {
+      const errText = await resp.text();
+      console.error("gemini image REST error:", resp.status, errText);
+      return NextResponse.json(
+        { error: `Gemini devolvió ${resp.status}. Revisa GEMINI_API_KEY y acceso al modelo.` },
+        { status: 502 }
+      );
+    }
+
+    const data = (await resp.json()) as {
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string; inlineData?: { data: string; mimeType: string } }> } }>;
+    };
+    const parts = data.candidates?.[0]?.content?.parts ?? [];
 
     let imageBase64 = "";
     let mimeType = "image/png";
     let textContent = "";
 
-    for (const part of parts as Array<{ text?: string; inlineData?: { data: string; mimeType: string } }>) {
+    for (const part of parts) {
       if (part.inlineData) {
         imageBase64 = part.inlineData.data;
         mimeType = part.inlineData.mimeType;
