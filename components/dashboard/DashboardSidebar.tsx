@@ -12,8 +12,6 @@ interface NavItem {
   icon: React.ReactNode;
 }
 
-const SHOW_ADS = process.env.NEXT_PUBLIC_FEATURE_ADS === "true";
-
 const NAV: NavItem[] = [
   {
     href: "/dashboard",
@@ -87,19 +85,15 @@ const NAV: NavItem[] = [
       </svg>
     ),
   },
-  ...(SHOW_ADS
-    ? [
-        {
-          href: "/dashboard/ads",
-          label: "Ads",
-          icon: (
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-            </svg>
-          ),
-        },
-      ]
-    : []),
+  {
+    href: "/dashboard/ads",
+    label: "Ads Accelerator",
+    icon: (
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+      </svg>
+    ),
+  },
   {
     href: "/dashboard/afiliados",
     label: "Afiliados",
@@ -114,9 +108,10 @@ const NAV: NavItem[] = [
 interface DashboardSidebarProps {
   profile: { full_name: string; logo_url: string | null; primary_color: string; slug: string } | null;
   userId: string;
+  isStaff?: boolean;
 }
 
-export function DashboardSidebar({ profile, userId }: DashboardSidebarProps) {
+export function DashboardSidebar({ profile, userId, isStaff }: DashboardSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -166,6 +161,26 @@ export function DashboardSidebar({ profile, userId }: DashboardSidebarProps) {
             </Link>
           );
         })}
+
+        {isStaff && (
+          <div className="mt-2">
+            <Link
+              href="/dashboard/ads-admin"
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm transition-all duration-150",
+                pathname.startsWith("/dashboard/ads-admin")
+                  ? "bg-[#FF7F11] text-white"
+                  : "text-[#6B7565] hover:text-white hover:bg-white/5"
+              )}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Ads Admin
+            </Link>
+          </div>
+        )}
 
         <div className="mt-4 pt-4 border-t border-white/5">
           <Link

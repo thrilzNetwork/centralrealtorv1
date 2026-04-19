@@ -28,6 +28,23 @@ export async function POST(request: NextRequest) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
+
+      // Wallet top-up
+      if (session.metadata?.type === "wallet_topup") {
+        const profileId = session.metadata.profile_id;
+        const amountCents = Number(session.metadata.amount_cents);
+        if (profileId && amountCents > 0) {
+          await admin.from("wallet_transactions").insert({
+            profile_id:        profileId,
+            amount_cents:      amountCents,
+            type:              "topup",
+            stripe_session_id: session.id,
+            description:       `Recarga via Stripe — $${(amountCents / 100).toFixed(2)} USD`,
+          });
+        }
+        break;
+      }
+
       const profileId = session.metadata?.profileId;
       const plan = session.metadata?.plan as 'basico' | 'profesional' | 'broker';
       const organizationId = session.metadata?.organizationId;

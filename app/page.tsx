@@ -5,7 +5,7 @@ import { resolveBySlug } from "@/lib/tenant/resolver";
 import { TenantProvider } from "@/components/themes/TenantContext";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { RealtorV1Page } from "@/components/themes/realtor-v1/RealtorV1Page";
-import { ArrowRight, Bot, Sparkles, Video, Camera, Globe, Zap, Play, CalendarCheck, FileText } from "lucide-react";
+import { ArrowRight, Bot, Sparkles, Video, Camera, Globe, Zap, Play, CalendarCheck, FileText, Megaphone } from "lucide-react";
 import { LandingChatbot } from "@/components/LandingChatbot";
 import { BrandLogoBar } from "@/components/landing/BrandLogoBar";
 import { AccessGate } from "@/components/landing/AccessGate";
@@ -70,6 +70,7 @@ const FEATURES = [
   { icon: <Camera className="w-6 h-6" />, title: "Nano Banana Pro", desc: "Mejora automática de imágenes: luminosidad, nitidez y virtual staging con IA. Fotos profesionales desde tu celular." },
   { icon: <Globe className="w-6 h-6" />, title: "Portal con tu Marca", desc: "Tu dominio, tu logo, tus colores, tu personalidad. Listo en 2 minutos — sin código, sin diseñadores, sin excusas." },
   { icon: <Zap className="w-6 h-6" />, title: "Lead Sniper", desc: "Captura leads las 24 horas y te notifica por WhatsApp al instante con los datos del comprador interesado." },
+  { icon: <Megaphone className="w-6 h-6" />, title: "Ads Accelerator", desc: "Paga en USD con cualquier tarjeta. Nuestro equipo en EE.UU. lanza tus anuncios en Meta, TikTok y Google — sin dramas con tu banco boliviano." },
 ];
 
 const AI_STACK = [

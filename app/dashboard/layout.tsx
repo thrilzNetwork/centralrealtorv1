@@ -12,7 +12,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, logo_url, primary_color, secondary_color, slug, onboarding_completed, organization_id, created_at")
+    .select("full_name, logo_url, primary_color, secondary_color, slug, onboarding_completed, organization_id, created_at, is_staff")
     .eq("id", user.id)
     .single();
 
@@ -30,7 +30,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <div className="flex min-h-dvh bg-[#F7F5EE]">
-      <DashboardSidebar profile={profile} userId={user.id} />
+      <DashboardSidebar profile={profile} userId={user.id} isStaff={!!profile.is_staff} />
       {/* pt-14 on mobile accounts for the fixed 56px top bar */}
       <main className="flex-1 min-w-0 ml-0 lg:ml-64 pt-14 lg:pt-0">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 lg:py-8">
