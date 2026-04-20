@@ -67,7 +67,7 @@ const FEATURES = [
   { icon: <Bot className="w-6 h-6" />, title: "Chatbot IA 24/7", desc: "Responde compradores, agenda visitas automáticamente y registra leads — conectado a tu base de conocimiento y tu voz de marca." },
   { icon: <Sparkles className="w-6 h-6" />, title: "CM Digital", desc: "Genera posts para Instagram y Facebook por cada propiedad con tu voz. Contenido profesional listo para publicar en segundos." },
   { icon: <Video className="w-6 h-6" />, title: "Veo AI Video", desc: "Recorridos cinemáticos generados por IA para cada inmueble. Sin cámara, sin edición, sin costo de producción." },
-  { icon: <Camera className="w-6 h-6" />, title: "Nano Banana Pro", desc: "Mejora automática de imágenes: luminosidad, nitidez y virtual staging con IA. Fotos profesionales desde tu celular." },
+  { icon: <Camera className="w-6 h-6" />, title: "Nano Banana Pro", desc: "Mejora automática de imágenes con IA: luminosidad, nitidez y color. Fotos profesionales desde tu celular." },
   { icon: <Globe className="w-6 h-6" />, title: "Portal con tu Marca", desc: "Tu dominio, tu logo, tus colores, tu personalidad. Listo en 2 minutos — sin código, sin diseñadores, sin excusas." },
   { icon: <Zap className="w-6 h-6" />, title: "Lead Sniper", desc: "Captura leads las 24 horas y te notifica por WhatsApp al instante con los datos del comprador interesado." },
   { icon: <Megaphone className="w-6 h-6" />, title: "Ads Accelerator", desc: "Paga en USD con cualquier tarjeta. Nuestro equipo en EE.UU. lanza tus anuncios en Meta, TikTok y Google — sin dramas con tu banco boliviano." },
@@ -78,7 +78,7 @@ const AI_STACK = [
   { icon: <CalendarCheck className="w-5 h-5" />, name: "AI Scheduler", sub: "Agenda visitas · Confirmación automática · 24/7" },
   { icon: <Sparkles className="w-5 h-5" />, name: "CM Digital", sub: "Generación de contenido · Tu voz de marca" },
   { icon: <Video className="w-5 h-5" />, name: "Veo AI Video", sub: "Videos cinemáticos · Sin producción" },
-  { icon: <Camera className="w-5 h-5" />, name: "Nano Banana Pro", sub: "Mejora de imágenes · Virtual staging" },
+  { icon: <Camera className="w-5 h-5" />, name: "Nano Banana Pro", sub: "Mejora de imágenes · Color y nitidez IA" },
   { icon: <FileText className="w-5 h-5" />, name: "Scraper de Portales", sub: "Importa desde C21 Bolivia y otros portales" },
 ];
 

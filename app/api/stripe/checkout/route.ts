@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getStripe, PLAN_PRICES, ONE_TIME_PLANS, getOrCreateCustomer } from "@/lib/stripe/client";
+import { getStripe, getPriceId, ONE_TIME_PLANS, getOrCreateCustomer } from "@/lib/stripe/client";
+import { requireEnv } from "@/lib/validate-env";
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,9 +10,11 @@ export async function POST(request: NextRequest) {
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { plan } = await request.json();
-    const priceId = PLAN_PRICES[plan];
 
-    if (!priceId) {
+    let priceId: string;
+    try {
+      priceId = getPriceId(plan);
+    } catch {
       return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
     }
 
@@ -32,7 +35,7 @@ export async function POST(request: NextRequest) {
         .eq("id", user.id);
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const appUrl = requireEnv("NEXT_PUBLIC_APP_URL");
     const stripe = getStripe();
     const isOneTime = ONE_TIME_PLANS.has(plan);
 

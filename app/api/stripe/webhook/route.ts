@@ -4,6 +4,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type Stripe from "stripe";
 
 export async function POST(request: NextRequest) {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret || webhookSecret.trim() === "") {
+    console.error("STRIPE_WEBHOOK_SECRET is not configured");
+    return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+  }
+
   const body = await request.text();
   const sig = request.headers.get("stripe-signature");
 
@@ -14,12 +20,8 @@ export async function POST(request: NextRequest) {
   let event: Stripe.Event;
 
   try {
-    event = getStripe().webhooks.constructEvent(
-      body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
-  } catch (err) {
+    event = getStripe().webhooks.constructEvent(body, sig, webhookSecret);
+  } catch {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -75,6 +77,38 @@ export async function POST(request: NextRequest) {
           title: `Plan ${plan} activado`,
           body: "Tu suscripción fue activada exitosamente.",
         });
+      }
+      break;
+    }
+
+    case "customer.subscription.updated": {
+      const sub = event.data.object as Stripe.Subscription;
+      const profileId = sub.metadata?.profileId;
+      const organizationId = sub.metadata?.organizationId;
+      const plan = sub.metadata?.plan as 'basico' | 'profesional' | 'broker' | undefined;
+
+      let orgId: string | undefined = organizationId;
+      if (!orgId && profileId) {
+        const { data: profile } = await admin.from("profiles").select("organization_id").eq("id", profileId).single();
+        orgId = profile?.organization_id ?? undefined;
+      }
+
+      if (orgId) {
+        const statusMap: Record<string, string> = {
+          active: 'active',
+          trialing: 'active',
+          past_due: 'past_due',
+          unpaid: 'past_due',
+          canceled: 'canceled',
+          incomplete: 'incomplete',
+          incomplete_expired: 'canceled',
+          paused: 'paused',
+        };
+        const update: Record<string, unknown> = {
+          subscription_status: statusMap[sub.status] ?? sub.status,
+        };
+        if (plan) update.plan = plan;
+        await admin.from("organizations").update(update).eq("id", orgId);
       }
       break;
     }
