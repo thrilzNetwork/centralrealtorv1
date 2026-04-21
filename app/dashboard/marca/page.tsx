@@ -1,18 +1,24 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { BrandManager } from "@/components/dashboard/BrandManager";
+import { SocialAccountsCard } from "@/components/dashboard/SocialAccountsCard";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Brand Manager — Dashboard" };
 
-export default async function MarcaPage() {
+export default async function MarcaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ social?: string }>;
+}) {
+  const { social } = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, brand_voice, primary_color, secondary_color, logo_url, city")
+    .select("full_name, brand_voice, primary_color, secondary_color, logo_url, city, instagram_user_id, facebook_page_id, tiktok_open_id")
     .eq("id", user.id)
     .single();
 
@@ -31,6 +37,9 @@ export default async function MarcaPage() {
     currency: string | null;
   }>;
 
+  const fbAvailable = !!process.env.FACEBOOK_APP_ID;
+  const tiktokAvailable = !!process.env.TIKTOK_CLIENT_KEY;
+
   return (
     <div className="animate-fade-up max-w-3xl">
       <div className="mb-8">
@@ -46,6 +55,15 @@ export default async function MarcaPage() {
         </p>
       </div>
       <BrandManager profile={profile} listings={listings} />
+      <SocialAccountsCard
+        instagram={!!profile?.instagram_user_id}
+        facebook={!!profile?.facebook_page_id}
+        tiktok={!!profile?.tiktok_open_id}
+        fbAvailable={fbAvailable}
+        tiktokAvailable={tiktokAvailable}
+        justConnected={social === "connected"}
+        error={social === "error" || social === "unavailable"}
+      />
     </div>
   );
 }

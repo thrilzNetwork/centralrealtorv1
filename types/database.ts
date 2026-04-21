@@ -88,6 +88,12 @@ export interface Database {
           chatbot_config: Record<string, unknown>;
           google_refresh_token: string | null;
           google_calendar_id: string | null;
+          instagram_user_id: string | null;
+          instagram_access_token: string | null;
+          facebook_page_id: string | null;
+          facebook_page_token: string | null;
+          tiktok_open_id: string | null;
+          tiktok_access_token: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -121,6 +127,12 @@ export interface Database {
           chatbot_config?: Record<string, unknown>;
           google_refresh_token?: string | null;
           google_calendar_id?: string | null;
+          instagram_user_id?: string | null;
+          instagram_access_token?: string | null;
+          facebook_page_id?: string | null;
+          facebook_page_token?: string | null;
+          tiktok_open_id?: string | null;
+          tiktok_access_token?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -154,6 +166,12 @@ export interface Database {
           chatbot_config?: Record<string, unknown>;
           google_refresh_token?: string | null;
           google_calendar_id?: string | null;
+          instagram_user_id?: string | null;
+          instagram_access_token?: string | null;
+          facebook_page_id?: string | null;
+          facebook_page_token?: string | null;
+          tiktok_open_id?: string | null;
+          tiktok_access_token?: string | null;
           created_at?: string;
           updated_at?: string;
         };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 
 type Tone = "agresivo" | "lujo" | "empatico";
@@ -30,6 +30,20 @@ export function CMDigitalPanel({ listingId }: { listingId: string }) {
   const [copy, setCopy] = useState("");
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publishResult, setPublishResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [socialConnected, setSocialConnected] = useState<Record<Platform, boolean>>({
+    instagram: false,
+    facebook: false,
+    tiktok: false,
+  });
+
+  useEffect(() => {
+    fetch("/api/social/status")
+      .then((r) => r.json())
+      .then((data: Record<Platform, boolean>) => setSocialConnected(data))
+      .catch(() => {});
+  }, []);
 
   const charLimit = CHAR_LIMITS[platform];
   const isOverLimit = copy.length > charLimit;
@@ -37,6 +51,7 @@ export function CMDigitalPanel({ listingId }: { listingId: string }) {
   async function handleGenerate() {
     setGenerating(true);
     setCopy("");
+    setPublishResult(null);
     try {
       const res = await fetch("/api/cm/generate-post", {
         method: "POST",
@@ -58,6 +73,30 @@ export function CMDigitalPanel({ listingId }: { listingId: string }) {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
+
+  async function handlePublish() {
+    setPublishing(true);
+    setPublishResult(null);
+    try {
+      const res = await fetch("/api/cm/publish-post", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ platform, copy }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPublishResult({ ok: false, message: data.error ?? "Error al publicar" });
+      } else {
+        setPublishResult({ ok: true, message: `Publicado en ${PLATFORM_LABELS[platform]}` });
+      }
+    } catch {
+      setPublishResult({ ok: false, message: "Error de conexión" });
+    } finally {
+      setPublishing(false);
+    }
+  }
+
+  const canPublish = socialConnected[platform] && platform !== "tiktok";
 
   return (
     <div className="mt-2 bg-white border border-[#EAE7DC] rounded-sm p-6 flex flex-col gap-5">
@@ -107,7 +146,7 @@ export function CMDigitalPanel({ listingId }: { listingId: string }) {
             <button
               key={p}
               type="button"
-              onClick={() => setPlatform(p)}
+              onClick={() => { setPlatform(p); setPublishResult(null); }}
               className={`px-3 py-1.5 text-xs font-medium rounded-sm border transition-colors ${
                 platform === p
                   ? "bg-[#FF7F11] text-white border-[#FF7F11]"
@@ -115,6 +154,9 @@ export function CMDigitalPanel({ listingId }: { listingId: string }) {
               }`}
             >
               {PLATFORM_LABELS[p]}
+              {socialConnected[p] && (
+                <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-green-400 align-middle" />
+              )}
             </button>
           ))}
         </div>
@@ -153,27 +195,78 @@ export function CMDigitalPanel({ listingId }: { listingId: string }) {
             rows={8}
             className="w-full text-sm text-[#262626] bg-[#F7F5EE] border border-[#EAE7DC] rounded-sm p-3 resize-y focus:outline-none focus:border-[#FF7F11] transition-colors leading-relaxed"
           />
-          <button
-            type="button"
-            onClick={handleCopy}
-            className="self-end flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#F7F5EE] border border-[#EAE7DC] rounded-sm hover:bg-[#EAE7DC] transition-colors"
-          >
-            {copied ? (
-              <>
-                <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Copiado
-              </>
+          <div className="flex items-center gap-2 justify-end">
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#F7F5EE] border border-[#EAE7DC] rounded-sm hover:bg-[#EAE7DC] transition-colors"
+            >
+              {copied ? (
+                <>
+                  <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Copiado
+                </>
+              ) : (
+                <>
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Copiar
+                </>
+              )}
+            </button>
+
+            {canPublish ? (
+              <button
+                type="button"
+                onClick={handlePublish}
+                disabled={publishing}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#262626] text-white rounded-sm hover:bg-[#FF7F11] transition-colors disabled:opacity-50"
+              >
+                {publishing ? (
+                  <>
+                    <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                    Publicando...
+                  </>
+                ) : (
+                  "Publicar ahora"
+                )}
+              </button>
             ) : (
-              <>
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                Copiar
-              </>
+              <span
+                title={
+                  platform === "tiktok"
+                    ? "TikTok requiere video — próximamente"
+                    : "Conecta tu cuenta en Brand Manager"
+                }
+                className="px-3 py-1.5 text-xs font-medium bg-[#F7F5EE] border border-[#EAE7DC] rounded-sm text-[#6B7565] cursor-not-allowed"
+              >
+                Publicar ahora
+              </span>
             )}
-          </button>
+          </div>
+
+          {publishResult && (
+            <div
+              className={`px-3 py-2 rounded-sm text-xs ${
+                publishResult.ok
+                  ? "bg-green-50 border border-green-200 text-green-700"
+                  : "bg-red-50 border border-red-200 text-red-600"
+              }`}
+            >
+              {publishResult.message}
+              {!publishResult.ok && platform !== "tiktok" && !socialConnected[platform] && (
+                <a href="/dashboard/marca" className="ml-2 underline">
+                  Conectar cuenta
+                </a>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
