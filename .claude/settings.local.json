@@ -6,7 +6,11 @@
       "Bash(npm install:*)",
       "Bash(npx next:*)",
       "Bash(npx tsc:*)",
-      "mcp__5563e8c1-4919-4acd-8caf-85d6b322a284__deploy_to_vercel"
+      "mcp__5563e8c1-4919-4acd-8caf-85d6b322a284__deploy_to_vercel",
+      "mcp__5563e8c1-4919-4acd-8caf-85d6b322a284__list_teams",
+      "mcp__5563e8c1-4919-4acd-8caf-85d6b322a284__list_projects",
+      "mcp__5563e8c1-4919-4acd-8caf-85d6b322a284__list_deployments",
+      "mcp__5563e8c1-4919-4acd-8caf-85d6b322a284__get_runtime_logs"
     ]
   }
 }
