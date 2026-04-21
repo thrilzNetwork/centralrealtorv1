@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CreditCard, Loader2, Sparkles } from "lucide-react";
+import { Check, CreditCard, Loader2, Sparkles } from "lucide-react";
 
 // Map Pro Essential to the 'profesional' DB tier for $49,
 // Map Elite Suite to the 'broker' DB tier for $69.
@@ -45,8 +45,40 @@ interface BillingPanelProps {
   isExpired?: boolean;
 }
 
-export function BillingPanel({ userId = "N/A", entitySlug = "N/A", isNew = false }: BillingPanelProps) {
+export function BillingPanel({
+  currentPlan,
+  subscriptionStatus,
+  trialEndsAt,
+  userId = "N/A",
+  entitySlug = "N/A",
+  isNew = false,
+  isExpired = false,
+}: BillingPanelProps) {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [loadingPortal, setLoadingPortal] = useState(false);
+
+  const normalizedPlan = (currentPlan ?? "basico").toLowerCase();
+  const isActive = subscriptionStatus === "active" || subscriptionStatus === "trialing";
+  const trialEnds = trialEndsAt ? new Date(trialEndsAt) : null;
+  const trialActive = trialEnds ? trialEnds.getTime() > Date.now() : false;
+
+  const openCustomerPortal = async () => {
+    try {
+      setLoadingPortal(true);
+      const res = await fetch("/api/stripe/portal", { method: "POST" });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("No pudimos abrir el portal de facturación. Escríbenos por WhatsApp.");
+        setLoadingPortal(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error de red al abrir el portal de facturación.");
+      setLoadingPortal(false);
+    }
+  };
 
   const handleStripeCheckout = async (planKey: string) => {
     try {
@@ -75,20 +107,92 @@ export function BillingPanel({ userId = "N/A", entitySlug = "N/A", isNew = false
     return `https://wa.me/19546488174?text=${encodeURIComponent(text)}`;
   };
 
+  const currentPlanLabel =
+    normalizedPlan === "broker"
+      ? "Elite Suite"
+      : normalizedPlan === "profesional"
+      ? "Pro Essential"
+      : "Básico";
+
+  const statusLabel: Record<string, string> = {
+    active: "Activo",
+    trialing: "En prueba",
+    past_due: "Pago pendiente",
+    canceled: "Cancelado",
+    paused: "Pausado",
+    incomplete: "Incompleto",
+  };
+
   return (
     <div className="flex flex-col gap-8">
+      {/* Current plan summary */}
+      <div
+        className="max-w-4xl rounded-sm border p-5 flex flex-wrap items-center justify-between gap-4"
+        style={{
+          borderColor: isActive ? "#FF7F11" : "#EAE7DC",
+          backgroundColor: isActive ? "#FFF7F0" : "#F7F5EE",
+        }}
+      >
+        <div>
+          <p className="label-caps text-[#6B7565] mb-1">Plan actual</p>
+          <div className="flex items-center gap-3">
+            <p className="font-serif text-xl text-[#262626]">{currentPlanLabel}</p>
+            {subscriptionStatus && (
+              <span
+                className="text-xs px-2.5 py-0.5 rounded-full border"
+                style={{
+                  borderColor: isActive ? "#FF7F11" : "#D8D3C8",
+                  color: isActive ? "#FF7F11" : "#6B7565",
+                  backgroundColor: "white",
+                }}
+              >
+                {statusLabel[subscriptionStatus] ?? subscriptionStatus}
+              </span>
+            )}
+          </div>
+          {trialActive && trialEnds && (
+            <p className="text-xs text-[#6B7565] mt-1">
+              Prueba gratis hasta {trialEnds.toLocaleDateString("es-BO")}
+            </p>
+          )}
+          {isExpired && (
+            <p className="text-xs text-red-600 mt-1">Tu prueba terminó — elige un plan para continuar.</p>
+          )}
+        </div>
+        {isActive && (
+          <button
+            onClick={openCustomerPortal}
+            disabled={loadingPortal}
+            className="flex items-center gap-2 py-2.5 px-4 text-sm rounded-sm border border-[#D8D3C8] bg-white text-[#262626] hover:bg-[#F7F5EE] transition-colors"
+          >
+            {loadingPortal ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
+            {loadingPortal ? "Abriendo..." : "Gestionar suscripción"}
+          </button>
+        )}
+      </div>
+
       {/* Plan cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
-        {PLANS.map((plan) => (
+        {PLANS.map((plan) => {
+          const isCurrent = isActive && normalizedPlan === plan.key;
+          return (
           <div
             key={plan.key}
             className="bg-white border rounded-sm p-8 flex flex-col gap-6 relative transition-all hover:shadow-md"
             style={{
-              borderColor: plan.highlight ? "#FF7F11" : "#EAE7DC",
-              boxShadow: plan.highlight ? "0 10px 40px -10px #FF7F1130" : undefined,
+              borderColor: isCurrent ? "#FF7F11" : plan.highlight ? "#FF7F11" : "#EAE7DC",
+              boxShadow: plan.highlight || isCurrent ? "0 10px 40px -10px #FF7F1130" : undefined,
             }}
           >
-            {plan.highlight && (
+            {isCurrent && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="label-caps bg-[#262626] text-white px-4 py-1.5 rounded-sm shadow-md flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5" />
+                  Plan actual
+                </span>
+              </div>
+            )}
+            {!isCurrent && plan.highlight && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                 <span className="label-caps bg-[#FF7F11] text-white px-4 py-1.5 rounded-sm shadow-md flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
@@ -126,23 +230,38 @@ export function BillingPanel({ userId = "N/A", entitySlug = "N/A", isNew = false
             </ul>
 
             <div className="flex flex-col gap-3 mt-2 pt-6 border-t border-[#EAE7DC]/60">
-              <button
-                onClick={() => handleStripeCheckout(plan.key)}
-                disabled={loadingPlan !== null}
-                className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-medium rounded-sm transition-all shadow-sm"
-                style={
-                  plan.highlight
-                    ? { backgroundColor: "#FF7F11", color: "white" }
-                    : { backgroundColor: "#262626", color: "white" }
-                }
-              >
-                {loadingPlan === plan.key ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <CreditCard className="w-4 h-4" />
-                )}
-                {loadingPlan === plan.key ? "Redirigiendo..." : "Pagar con Tarjeta"}
-              </button>
+              {isCurrent ? (
+                <button
+                  onClick={openCustomerPortal}
+                  disabled={loadingPortal}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-medium rounded-sm transition-all border border-[#262626] text-[#262626] bg-white hover:bg-[#F7F5EE]"
+                >
+                  {loadingPortal ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
+                  {loadingPortal ? "Abriendo..." : "Gestionar suscripción"}
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleStripeCheckout(plan.key)}
+                  disabled={loadingPlan !== null}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-medium rounded-sm transition-all shadow-sm"
+                  style={
+                    plan.highlight
+                      ? { backgroundColor: "#FF7F11", color: "white" }
+                      : { backgroundColor: "#262626", color: "white" }
+                  }
+                >
+                  {loadingPlan === plan.key ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <CreditCard className="w-4 h-4" />
+                  )}
+                  {loadingPlan === plan.key
+                    ? "Redirigiendo..."
+                    : isActive
+                    ? (normalizedPlan === "broker" ? "Cambiar a este plan" : "Subir a este plan")
+                    : "Pagar con Tarjeta"}
+                </button>
+              )}
 
               <p className="text-center text-[10px] label-caps text-[#6B7565]">
                 Promoción: Setup Fee ($100) GRATIS hasta el 1 de mayo
@@ -161,7 +280,8 @@ export function BillingPanel({ userId = "N/A", entitySlug = "N/A", isNew = false
               </a>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {isNew && (

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getStripe } from "@/lib/stripe/client";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logAudit } from "@/lib/audit";
 import type Stripe from "stripe";
 
 export async function POST(request: NextRequest) {
@@ -42,6 +43,13 @@ export async function POST(request: NextRequest) {
             type:              "topup",
             stripe_session_id: session.id,
             description:       `Recarga via Stripe — $${(amountCents / 100).toFixed(2)} USD`,
+          });
+          await logAudit({
+            actor_id:   profileId,
+            action:     "wallet.topup",
+            subject_id: profileId,
+            resource:   `stripe_session:${session.id}`,
+            metadata:   { amount_cents: amountCents },
           });
         }
         break;

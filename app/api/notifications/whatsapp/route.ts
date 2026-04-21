@@ -1,9 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const maxDuration = 15;
 
 export async function POST(request: NextRequest) {
+  const rl = rateLimit(request, { key: "whatsapp", limit: 10, windowMs: 60_000 });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
   const from = process.env.TWILIO_WA_FROM; // e.g. "whatsapp:+14155238886"

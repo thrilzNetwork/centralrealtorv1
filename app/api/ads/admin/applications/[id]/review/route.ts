@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logAudit } from "@/lib/audit";
 
 export async function POST(
   request: NextRequest,
@@ -48,6 +49,14 @@ export async function POST(
     .from("profiles")
     .update({ ads_access_status: decision })
     .eq("id", app.profile_id);
+
+  await logAudit({
+    actor_id:   user.id,
+    action:     "ads.application.review",
+    subject_id: app.profile_id,
+    resource:   `ads_application:${id}`,
+    metadata:   { decision, notes: notes ?? null },
+  });
 
   // Notify client (fire-and-forget)
   const { data: clientProfile } = await admin

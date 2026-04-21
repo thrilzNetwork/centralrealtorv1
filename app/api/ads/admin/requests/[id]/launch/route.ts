@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logAudit } from "@/lib/audit";
 
 export async function POST(
   request: NextRequest,
@@ -70,6 +71,20 @@ export async function POST(
     author_id:     user.id,
     message:       `Campaña lanzada. IDs: ${JSON.stringify(external_campaign_ids ?? {})}`,
     status_change: "active",
+  });
+
+  await logAudit({
+    actor_id:   user.id,
+    action:     "ads.campaign.launch",
+    subject_id: req.profile_id,
+    resource:   `ad_request:${id}`,
+    metadata: {
+      total_budget_cents:     req.total_budget_cents,
+      management_fee_cents:   req.management_fee_cents,
+      ad_spend_budget_cents:  req.ad_spend_budget_cents,
+      external_campaign_ids:  external_campaign_ids ?? {},
+      platforms:              req.platforms,
+    },
   });
 
   // Notify client

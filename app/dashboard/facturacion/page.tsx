@@ -21,20 +21,37 @@ export default async function FacturacionPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("created_at, organization_id, slug")
+    .select("created_at, organization_id, slug, stripe_customer_id")
     .eq("id", user.id)
     .single();
 
   let entitySlug = profile?.slug ?? "N/A";
+  let currentPlan = "basico";
+  let subscriptionStatus: string | null = null;
+  let orgTrialEndsAt: string | null = null;
+
   if (profile?.organization_id) {
-    const { data: org } = await supabase.from("organizations").select("slug").eq("id", profile.organization_id).single();
+    const { data: org } = await supabase
+      .from("organizations")
+      .select("slug, plan, subscription_status, trial_ends_at")
+      .eq("id", profile.organization_id)
+      .single();
     if (org?.slug) entitySlug = org.slug;
+    if (org?.plan) currentPlan = org.plan;
+    if (org?.subscription_status) subscriptionStatus = org.subscription_status;
+    if (org?.trial_ends_at) orgTrialEndsAt = org.trial_ends_at;
   }
 
-  // Trial = 3 days from account creation
-  const trialEndsAt = profile?.created_at
-    ? new Date(new Date(profile.created_at).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString()
-    : null;
+  // Prefer the org trial_ends_at; fall back to a 3-day window from account creation
+  const trialEndsAt = orgTrialEndsAt
+    ?? (profile?.created_at
+      ? new Date(new Date(profile.created_at).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString()
+      : null);
+
+  // If no subscription record but we're inside the trial window, mark as trialing.
+  if (!subscriptionStatus && trialEndsAt && new Date(trialEndsAt).getTime() > Date.now()) {
+    subscriptionStatus = "trialing";
+  }
 
   const heading = isNew
     ? "Activa tu portal"
@@ -66,10 +83,10 @@ export default async function FacturacionPage({
       </div>
 
       <BillingPanel
-        currentPlan="demo"
-        subscriptionStatus="trialing"
+        currentPlan={currentPlan}
+        subscriptionStatus={subscriptionStatus}
         trialEndsAt={trialEndsAt}
-        hasCustomer={false}
+        hasCustomer={Boolean(profile?.stripe_customer_id)}
         userId={user.id}
         entitySlug={entitySlug}
         isNew={isNew}

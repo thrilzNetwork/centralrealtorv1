@@ -43,7 +43,9 @@ export async function GET(request: NextRequest) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ profile_id: lead.profile_id, message: msg }),
-    }).catch(() => {});
+    }).catch((err) => {
+      console.error("nurture whatsapp send failed:", lead.id, err);
+    });
 
     await admin
       .from("leads")
