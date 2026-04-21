@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { Check, CreditCard, Loader2, Sparkles } from "lucide-react";
 
-// Map Pro Essential to the 'profesional' DB tier for $49,
-// Map Elite Suite to the 'broker' DB tier for $69.
+type Billing = "monthly" | "annual";
+
 const PLANS = [
   {
     key: "profesional",
     name: "Pro Essential",
-    price: "$49",
+    monthly: 49,
+    annual: 490,
     features: [
       "Portal con tu marca",
       "Propiedades ilimitadas",
@@ -22,7 +23,8 @@ const PLANS = [
   {
     key: "broker",
     name: "Elite Suite",
-    price: "$69",
+    monthly: 69,
+    annual: 690,
     features: [
       "Todo de Pro Essential",
       "Mejora de imágenes con IA (Nano Banana)",
@@ -54,6 +56,7 @@ export function BillingPanel({
   isNew = false,
   isExpired = false,
 }: BillingPanelProps) {
+  const [billing, setBilling] = useState<Billing>("monthly");
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingPortal, setLoadingPortal] = useState(false);
 
@@ -86,7 +89,7 @@ export function BillingPanel({
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: planKey }),
+        body: JSON.stringify({ plan: planKey, billing }),
       });
       const data = await res.json();
       if (data.url) {
@@ -171,6 +174,35 @@ export function BillingPanel({
         )}
       </div>
 
+      {/* Billing toggle */}
+      <div className="flex items-center gap-3 max-w-4xl">
+        <button
+          type="button"
+          onClick={() => setBilling("monthly")}
+          className={`px-4 py-2 text-sm rounded-sm border transition-colors ${
+            billing === "monthly"
+              ? "bg-[#262626] text-white border-[#262626]"
+              : "bg-white text-[#6B7565] border-[#EAE7DC] hover:border-[#262626]"
+          }`}
+        >
+          Mensual
+        </button>
+        <button
+          type="button"
+          onClick={() => setBilling("annual")}
+          className={`px-4 py-2 text-sm rounded-sm border transition-colors flex items-center gap-2 ${
+            billing === "annual"
+              ? "bg-[#262626] text-white border-[#262626]"
+              : "bg-white text-[#6B7565] border-[#EAE7DC] hover:border-[#262626]"
+          }`}
+        >
+          Anual
+          <span className="text-xs px-1.5 py-0.5 rounded-sm bg-[#FF7F11] text-white font-medium">
+            2 meses gratis
+          </span>
+        </button>
+      </div>
+
       {/* Plan cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
         {PLANS.map((plan) => {
@@ -203,10 +235,20 @@ export function BillingPanel({
 
             <div>
               <p className="label-caps text-[#6B7565] mb-2">{plan.name}</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-light text-[#FF7F11]">{plan.price}</span>
-                <span className="text-sm text-[#6B7565]">/ mes</span>
-              </div>
+              {billing === "annual" ? (
+                <div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-light text-[#FF7F11]">${Math.round(plan.annual / 12)}</span>
+                    <span className="text-sm text-[#6B7565]">/ mes</span>
+                  </div>
+                  <p className="text-xs text-[#6B7565] mt-1">${plan.annual}/año · ahorras ${plan.monthly * 12 - plan.annual}</p>
+                </div>
+              ) : (
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-light text-[#FF7F11]">${plan.monthly}</span>
+                  <span className="text-sm text-[#6B7565]">/ mes</span>
+                </div>
+              )}
             </div>
 
             <ul className="flex flex-col gap-3 flex-1">

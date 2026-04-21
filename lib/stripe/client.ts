@@ -20,6 +20,8 @@ export function getPriceId(plan: string): string {
   const map: Record<string, string | undefined> = {
     profesional: process.env.STRIPE_PRICE_PROFESIONAL,
     broker: process.env.STRIPE_PRICE_BROKER,
+    profesional_annual: process.env.STRIPE_PRICE_PROFESIONAL_ANNUAL,
+    broker_annual: process.env.STRIPE_PRICE_BROKER_ANNUAL,
     website200: process.env.STRIPE_PRICE_WEBSITE200,
   };
   const priceId = map[plan];

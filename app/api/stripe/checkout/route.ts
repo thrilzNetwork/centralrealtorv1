@@ -9,13 +9,19 @@ export async function POST(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { plan } = await request.json();
+    const { plan, billing = "monthly" } = await request.json() as { plan: string; billing?: string };
+    const planKey = billing === "annual" && !ONE_TIME_PLANS.has(plan) ? `${plan}_annual` : plan;
 
     let priceId: string;
     try {
-      priceId = getPriceId(plan);
+      priceId = getPriceId(planKey);
     } catch {
-      return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+      // Fall back to monthly if annual price not yet configured
+      try {
+        priceId = getPriceId(plan);
+      } catch {
+        return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+      }
     }
 
     const { data: profile } = await supabase
