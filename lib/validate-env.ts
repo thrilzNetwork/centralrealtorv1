@@ -76,8 +76,9 @@ export function validateEnv(): void {
   }
   const msg = lines.join("\n");
 
-  // In production, fail hard. In dev, warn loudly so local work isn't blocked.
-  if (process.env.NODE_ENV === "production") {
+  // Only fail hard on Vercel production. Preview + dev warn so missing
+  // scoped env vars don't crash every preview request.
+  if (process.env.VERCEL_ENV === "production") {
     throw new Error(msg);
   } else {
     console.warn(msg);
