@@ -53,6 +53,74 @@ export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
 
 // ── Templates ──
 
+export function welcomeEmail({
+  fullName,
+  brandName,
+  slug,
+  portalUrl,
+  dashboardUrl,
+}: {
+  fullName: string;
+  brandName?: string | null;
+  slug: string;
+  portalUrl: string;
+  dashboardUrl: string;
+}) {
+  const name = brandName || fullName || "Agente";
+  const html = `
+    <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background: #fff;">
+      <div style="border-bottom: 3px solid #FF7F11; padding-bottom: 16px; margin-bottom: 24px;">
+        <h1 style="margin: 0; color: #262626; font-size: 20px;">Central Bolivia</h1>
+        <p style="margin: 4px 0 0; color: #6B7565; font-size: 13px;">Tu oficina nunca cierra</p>
+      </div>
+
+      <h2 style="margin: 0 0 12px; color: #262626; font-size: 22px; font-weight: 400;">
+        Bienvenido a tu oficina virtual, ${escapeHtml(name)}.
+      </h2>
+
+      <p style="color: #6B7565; font-size: 15px; line-height: 1.6; margin-bottom: 24px;">
+        En 2 minutos activaste algo que la mayoría de agentes bolivianos no tiene:<br/>
+        <strong style="color: #262626;">Un portal inmobiliario con inteligencia artificial que trabaja 24/7.</strong>
+      </p>
+
+      <div style="background: #F7F5EE; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+        <h3 style="margin: 0 0 12px; color: #262626; font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em;">Primeros pasos</h3>
+        <ol style="margin: 0; padding-left: 20px; color: #262626; font-size: 14px; line-height: 1.8;">
+          <li><strong>Publica tu primera propiedad</strong> — solo necesitas fotos y precio.</li>
+          <li><strong>Comparte tu portal</strong> — ${escapeHtml(portalUrl)}</li>
+          <li><strong>Conecta tu dominio</strong> — tu marca, tu URL.</li>
+          <li><strong>Activa el chatbot</strong> — responde compradores mientras duermes.</li>
+        </ol>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 24px;">
+        <a href="${dashboardUrl}" style="display: inline-block; background: #FF7F11; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-size: 15px; font-weight: 600;">
+          Ir a mi Dashboard →
+        </a>
+      </div>
+
+      <div style="border-top: 1px solid #EAE7DC; padding-top: 16px;">
+        <p style="color: #6B7565; font-size: 13px; line-height: 1.5; margin: 0 0 8px;">
+          <strong style="color: #262626;">Tu portal personal:</strong><br/>
+          <a href="${portalUrl}" style="color: #FF7F11;">${portalUrl}</a>
+        </p>
+        <p style="color: #6B7565; font-size: 13px; line-height: 1.5; margin: 0;">
+          Si necesitas ayuda, responde a este correo o escríbenos por WhatsApp.
+        </p>
+      </div>
+
+      <p style="margin-top: 24px; color: #ACBFA4; font-size: 12px;">
+        Central Bolivia — Hecho en Bolivia 🇧🇴 · Operado por Thrilz Network LLC
+      </p>
+    </div>
+  `;
+
+  return {
+    subject: `${name}, tu portal inmobiliario está activo`,
+    html,
+  };
+}
+
 export function leadNotificationEmail({
   visitorName,
   visitorEmail,

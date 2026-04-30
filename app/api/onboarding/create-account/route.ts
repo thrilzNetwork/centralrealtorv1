@@ -1,12 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/utils/slugify";
+import { sendEmail, welcomeEmail } from "@/lib/email";
 
 /**
  * Server-side account creation using the admin API.
  * - No client-side rate limits
  * - email_confirm: true skips the confirmation email
  * - Creates the profile in the same request (no trigger dependency)
+ * - Sends branded welcome email via Resend
  */
 export async function POST(request: NextRequest) {
   try {
@@ -76,6 +78,20 @@ export async function POST(request: NextRequest) {
     if (profileError) {
       return NextResponse.json({ error: profileError.message }, { status: 500 });
     }
+
+    // ── 4. Send welcome email (non-blocking) ─────────────────────────
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://centralbolivia.com";
+    const { subject, html } = welcomeEmail({
+      fullName: fullName ?? "Agente",
+      brandName: brandName ?? null,
+      slug: finalSlug,
+      portalUrl: `${siteUrl}/${finalSlug}`,
+      dashboardUrl: `${siteUrl}/dashboard`,
+    });
+
+    sendEmail({ to: email, subject, html }).catch((err) => {
+      console.error("[ONBOARDING] Welcome email failed:", err);
+    });
 
     return NextResponse.json({ userId, slug: finalSlug, success: true });
   } catch (err) {
