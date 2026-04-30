@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { sendEmail, leadNotificationEmail } from "@/lib/email";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
       if (rpcError) console.error("increment_listing_hearts failed:", rpcError.message);
     }
 
-    // Notify realtor (in-app)
+    // ─── In-app notification ───
     await admin.from("notifications").insert({
       profile_id: profileId,
       lead_id: lead.id,
@@ -83,22 +84,33 @@ export async function POST(request: NextRequest) {
         : (visitorName ?? "Visitante anónimo"),
     });
 
-    // Gmail notification — fire-and-forget (best-effort, no await)
+    // ─── Email notification via Resend (AWAITED so we know if it fails) ───
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://centralbolivia.com";
-    const emailSubject =
-      type === "heart"
-        ? `Nuevo interesado: ${visitorName ?? "Visitante"} guardó una propiedad`
-        : `Nuevo mensaje de ${visitorName ?? "Visitante"}`;
-    const emailBody =
-      type === "heart"
-        ? `${visitorName ?? "Un visitante"}${visitorEmail ? ` (${visitorEmail})` : ""} guardó una de tus propiedades en Central Bolivia.\n\nRevisa tu panel: ${siteUrl}/dashboard`
-        : `${visitorName ?? "Un visitante"}${visitorEmail ? ` (${visitorEmail})` : ""} te envió un mensaje:\n\n${message ?? "(sin mensaje)"}\n\nRevisa tu panel: ${siteUrl}/dashboard`;
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("email")
+      .eq("id", profileId)
+      .single();
 
-    fetch(`${siteUrl}/api/notifications/email`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ profile_id: profileId, subject: emailSubject, body: emailBody }),
-    }).catch(() => {/* best-effort */});
+    if (profile?.email) {
+      const propertyTitle = listingId
+        ? (await admin.from("listings").select("title").eq("id", listingId).single()).data?.title
+        : null;
+
+      const { subject, html } = leadNotificationEmail({
+        visitorName: visitorName ?? "Visitante",
+        visitorEmail: visitorEmail ?? null,
+        visitorPhone: cleanPhone,
+        message: message ?? null,
+        propertyTitle: propertyTitle ?? null,
+        dashboardUrl: `${siteUrl}/dashboard/leads`,
+      });
+
+      // Fire in background but log errors
+      sendEmail({ to: profile.email, subject, html }).catch((err) => {
+        console.error("[LEADS] Email send failed:", err);
+      });
+    }
 
     return NextResponse.json({ success: true, leadId: lead.id });
   } catch (err) {

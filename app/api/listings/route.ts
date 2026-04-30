@@ -69,6 +69,31 @@ export async function POST(request: NextRequest) {
   }).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // ── Email on publish ──
+  if (body.status === "activo") {
+    const { data: userProfile } = await supabase
+      .from("profiles")
+      .select("email")
+      .eq("id", user.id)
+      .single();
+
+    if (userProfile?.email) {
+      const { sendEmail, propertyPublishedEmail } = await import("@/lib/email");
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://centralbolivia.com";
+      const { subject, html } = propertyPublishedEmail({
+        title: body.title,
+        address: body.address ?? null,
+        price: body.price ?? null,
+        currency: body.currency ?? "USD",
+        propertyUrl: `${siteUrl}/p/${finalSlug}`,
+      });
+      sendEmail({ to: userProfile.email, subject, html }).catch((err) =>
+        console.error("[LISTINGS] Email failed:", err)
+      );
+    }
+  }
+
   return NextResponse.json(data, { status: 201 });
 }
 
