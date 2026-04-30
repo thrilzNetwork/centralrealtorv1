@@ -193,11 +193,13 @@ export function PropertyDetail({ listing }: PropertyDetailProps) {
               </div>
 
               {/* Views + Hearts stats */}
-              <div className="flex gap-4 text-xs text-[#6B7565]">
-                <span>{listing.views} visitas</span>
-                <span>·</span>
-                <span>{listing.hearts} guardados</span>
-              </div>
+              {(listing.views > 0 || listing.hearts > 0) && (
+                <div className="flex gap-4 text-xs text-[#6B7565]">
+                  <span>{listing.views} visitas</span>
+                  <span>·</span>
+                  <span>{listing.hearts} guardados</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

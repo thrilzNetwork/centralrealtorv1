@@ -420,8 +420,8 @@ function MarketingPage() {
 
         <div className="grid sm:grid-cols-2 gap-6 mb-12">
           {[
-            { title: "Pro Essential", price: "$49", per: "/mes", desc: "Tu oficina digital profesional con IA, lista en 2 minutos.", features: ["Portal con tu marca y colores", "Propiedades ilimitadas", "CM Digital (Community Manager IA)", "AI Scheduler (agenda visitas automática)", "Web de Lujo (tema premium)"], highlight: false },
-            { title: "Elite Suite", price: "$69", per: "/mes", desc: "El estatus digital para el top 10% de agentes bolivianos.", features: ["Todo de Pro Essential", "Dominio propio incluido", "Nano Banana Pro (mejora de imágenes IA)", "Veo AI Video (recorridos cinemáticos)", "Soporte prioritario 24/7"], highlight: true },
+            { title: "Pro Essential", price: "$49", per: "/mes", desc: "Tu oficina digital profesional con IA, lista en 2 minutos.", features: ["Portal con tu marca y colores", "Propiedades ilimitadas", "CM Digital (Community Manager IA)", "AI Scheduler (agenda visitas automática)", "Web de Lujo (tema premium)"], highlight: false, plan: "pro-essential" },
+            { title: "Elite Suite", price: "$69", per: "/mes", desc: "El estatus digital para el top 10% de agentes bolivianos.", features: ["Todo de Pro Essential", "Dominio propio incluido", "Nano Banana Pro (mejora de imágenes IA)", "Veo AI Video (recorridos cinemáticos)", "Soporte prioritario 24/7"], highlight: true, plan: "elite-suite" },
           ].map((p) => (
             <div
               key={p.title}

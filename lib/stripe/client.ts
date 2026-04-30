@@ -15,6 +15,8 @@ export const PLAN_PRICES: Record<string, string> = {
   profesional: process.env.STRIPE_PRICE_PROFESIONAL ?? "",
   broker: process.env.STRIPE_PRICE_BROKER ?? "",
   website200: process.env.STRIPE_PRICE_WEBSITE200 ?? "",
+  "pro-essential": process.env.STRIPE_PRICE_PROFESIONAL ?? "",
+  "elite-suite": process.env.STRIPE_PRICE_BROKER ?? "",
 };
 
 /** Plans billed once — checkout uses mode:"payment" instead of "subscription" */
