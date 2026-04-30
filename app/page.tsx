@@ -8,7 +8,6 @@ import { RealtorV1Page } from "@/components/themes/realtor-v1/RealtorV1Page";
 import { ArrowRight, Bot, Sparkles, Video, Camera, Globe, Zap, Play, CalendarCheck, FileText } from "lucide-react";
 import { LandingChatbot } from "@/components/LandingChatbot";
 import { BrandLogoBar } from "@/components/landing/BrandLogoBar";
-import { AccessGate } from "@/components/landing/AccessGate";
 import type { Metadata } from "next";
 
 // ─── Metadata ─────────────────────────────────────────────────
@@ -107,8 +106,7 @@ const DEPARTMENTS = [
 function MarketingPage() {
   return (
     <>
-      <AccessGate />
-      <div className="min-h-screen bg-[#F7F5EE] font-sans landing-content">
+      <div className="min-h-screen bg-[#F7F5EE] font-sans">
         {/* Nav */}
         <nav className="fixed top-0 left-0 right-0 z-50 bg-[#F7F5EE]/95 backdrop-blur-sm border-b border-[#EAE7DC]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 flex items-center justify-between h-[4.5rem]">
