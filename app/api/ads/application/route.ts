@@ -1,6 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendEmail, getAdminEmails } from "@/lib/email/send";
+import {
+  adsApplicationAck,
+  adsApplicationAdmin,
+} from "@/lib/email/templates";
 
 export async function GET() {
   const supabase = await createClient();
@@ -95,6 +100,36 @@ export async function POST(request: NextRequest) {
         to: staffWa,
         message: `📋 Nueva solicitud Ads Accelerator\n${full_name} (${profile?.email})\nCiudad: ${city}\nRevisa en /dashboard/ads-admin`,
       }),
+    }).catch(() => {});
+  }
+
+  if (profile?.email) {
+    const ackTpl = adsApplicationAck({ fullName: full_name });
+    sendEmail({
+      to: profile.email,
+      subject: ackTpl.subject,
+      text: ackTpl.text,
+      html: ackTpl.html,
+    }).catch(() => {});
+  }
+
+  const admins = getAdminEmails();
+  if (admins.length > 0) {
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ??
+      process.env.NEXT_PUBLIC_APP_URL ??
+      "https://centralbolivia.com";
+    const adminTpl = adsApplicationAdmin({
+      fullName: full_name,
+      email: profile?.email ?? "(sin email en perfil)",
+      city,
+      phone,
+      adminUrl: `${siteUrl}/dashboard/ads-admin`,
+    });
+    sendEmail({
+      to: admins,
+      subject: adminTpl.subject,
+      text: adminTpl.text,
     }).catch(() => {});
   }
 

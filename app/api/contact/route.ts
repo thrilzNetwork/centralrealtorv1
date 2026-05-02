@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { sendEmail, getAdminEmails } from "@/lib/email/send";
+import { contactFormAdmin } from "@/lib/email/templates";
 
 export async function POST(request: NextRequest) {
   const rl = rateLimit(request, { key: "contact", limit: 5, windowMs: 60_000 });
@@ -31,6 +33,24 @@ export async function POST(request: NextRequest) {
     // If table doesn't exist yet, fall back silently — operator can add it via migration
     if (error && error.code !== "42P01") {
       console.error("contact lead insert error:", error.message);
+    }
+
+    const admins = getAdminEmails();
+    if (admins.length > 0) {
+      const tpl = contactFormAdmin({
+        name: name ?? null,
+        phone: phone ?? null,
+        role: role ?? null,
+        properties: properties ?? null,
+        challenge: challenge ?? null,
+        source: source ?? null,
+        score: score ?? null,
+      });
+      sendEmail({
+        to: admins,
+        subject: tpl.subject,
+        text: tpl.text,
+      }).catch(() => {});
     }
 
     return NextResponse.json({ success: true });

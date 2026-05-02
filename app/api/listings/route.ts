@@ -2,6 +2,42 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils/slugify";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendEmail } from "@/lib/email/send";
+import { listingPublished } from "@/lib/email/templates";
+
+function siteUrl() {
+  return (
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    process.env.NEXT_PUBLIC_APP_URL ??
+    "https://centralbolivia.com"
+  );
+}
+
+async function fireListingPublishedEmail(
+  admin: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  title: string,
+  slug: string,
+) {
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("email")
+    .eq("id", profileId)
+    .single();
+  if (!profile?.email) return;
+  const url = siteUrl();
+  const tpl = listingPublished({
+    title,
+    publicUrl: `${url}/propiedades/${slug}`,
+    dashboardUrl: `${url}/dashboard/propiedades`,
+  });
+  sendEmail({
+    to: profile.email,
+    subject: tpl.subject,
+    text: tpl.text,
+    html: tpl.html,
+  }).catch(() => {});
+}
 
 export async function GET() {
   const supabase = await createClient();
@@ -69,6 +105,11 @@ export async function POST(request: NextRequest) {
   }).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (data?.status === "activo") {
+    fireListingPublishedEmail(admin, user.id, data.title ?? "", data.slug ?? finalSlug).catch(() => {});
+  }
+
   return NextResponse.json(data, { status: 201 });
 }
 
@@ -80,6 +121,13 @@ export async function PATCH(request: NextRequest) {
   const body = await request.json();
   const { id, ...fields } = body;
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+
+  const { data: prevListing } = await supabase
+    .from("listings")
+    .select("status")
+    .eq("id", id)
+    .eq("profile_id", user.id)
+    .single();
 
   // Only allow updating the caller's own listing
   const { data, error } = await supabase
@@ -110,6 +158,20 @@ export async function PATCH(request: NextRequest) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (
+    data?.status === "activo" &&
+    prevListing?.status !== "activo"
+  ) {
+    const admin = createAdminClient();
+    fireListingPublishedEmail(
+      admin,
+      user.id,
+      data.title ?? "",
+      data.slug ?? "",
+    ).catch(() => {});
+  }
+
   return NextResponse.json(data);
 }
 

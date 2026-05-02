@@ -45,6 +45,11 @@ const ENV_SPEC: EnvSpec[] = [
   { name: "VERCEL_API_TOKEN", required: false, description: "Vercel API token (custom domain provisioning)" },
   { name: "VERCEL_PROJECT_ID", required: false, description: "Vercel project ID" },
   { name: "VERCEL_TEAM_ID", required: false, description: "Vercel team ID" },
+
+  // Transactional email (optional — features degrade gracefully when missing)
+  { name: "RESEND_API_KEY", required: false, description: "Resend API key (transactional email)" },
+  { name: "EMAIL_FROM", required: false, description: "From address, e.g. 'Central Bolivia <noreply@centralbolivia.com>'" },
+  { name: "ADMIN_EMAIL", required: false, description: "Comma-separated admin recipients for ops alerts" },
 ];
 
 export function validateEnv(): void {

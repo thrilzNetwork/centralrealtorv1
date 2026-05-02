@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { TrialGuard } from "@/components/dashboard/TrialGuard";
+import { UnconfirmedBanner } from "@/components/dashboard/UnconfirmedBanner";
 import type { ReactNode } from "react";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
@@ -34,6 +35,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       {/* pt-14 on mobile accounts for the fixed 56px top bar */}
       <main className="flex-1 min-w-0 ml-0 lg:ml-64 pt-14 lg:pt-0">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 lg:py-8">
+          {!user.email_confirmed_at && user.email && (
+            <UnconfirmedBanner email={user.email} />
+          )}
           <TrialGuard
             trialExpiresAt={
               org?.trial_expires_at ||

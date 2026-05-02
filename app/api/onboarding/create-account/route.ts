@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       email,
       password,
       user_metadata: { full_name: fullName ?? "" },
-      email_confirm: true, // skip email confirmation step
+      email_confirm: false,
     });
 
     if (createError) {

@@ -1,5 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendEmail, getAdminEmails } from "@/lib/email/send";
+import {
+  affiliateApplicationAck,
+  affiliateApplicationAdmin,
+} from "@/lib/email/templates";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -41,6 +46,37 @@ export async function POST(request: NextRequest) {
       }
       console.error("affiliate apply error:", error.message);
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    const ackTpl = affiliateApplicationAck({ fullName: String(full_name) });
+    sendEmail({
+      to: String(email),
+      subject: ackTpl.subject,
+      text: ackTpl.text,
+      html: ackTpl.html,
+    }).catch(() => {});
+
+    const admins = getAdminEmails();
+    if (admins.length > 0) {
+      const siteUrl =
+        process.env.NEXT_PUBLIC_SITE_URL ??
+        process.env.NEXT_PUBLIC_APP_URL ??
+        "https://centralbolivia.com";
+      const adminTpl = affiliateApplicationAdmin({
+        fullName: String(full_name),
+        email: String(email),
+        phone: phone ? String(phone) : null,
+        audienceSize: audience_size ? String(audience_size) : null,
+        channels: channels ? String(channels) : null,
+        message: message ? String(message) : null,
+        socialLinks: social_links ? String(social_links) : null,
+        adminUrl: `${siteUrl}/dashboard/afiliados`,
+      });
+      sendEmail({
+        to: admins,
+        subject: adminTpl.subject,
+        text: adminTpl.text,
+      }).catch(() => {});
     }
 
     return NextResponse.json({ success: true, id: data.id });

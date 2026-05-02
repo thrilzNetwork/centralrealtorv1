@@ -2,7 +2,34 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getStripe } from "@/lib/stripe/client";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logAudit } from "@/lib/audit";
+import { sendEmail } from "@/lib/email/send";
+import {
+  planActivated,
+  planCancelled,
+  paymentFailed,
+  walletTopup,
+} from "@/lib/email/templates";
 import type Stripe from "stripe";
+
+function siteUrl() {
+  return (
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    process.env.NEXT_PUBLIC_APP_URL ??
+    "https://centralbolivia.com"
+  );
+}
+
+async function fetchProfileEmail(
+  admin: ReturnType<typeof createAdminClient>,
+  profileId: string,
+): Promise<string | null> {
+  const { data } = await admin
+    .from("profiles")
+    .select("email")
+    .eq("id", profileId)
+    .single();
+  return data?.email ?? null;
+}
 
 export async function POST(request: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -51,6 +78,20 @@ export async function POST(request: NextRequest) {
             resource:   `stripe_session:${session.id}`,
             metadata:   { amount_cents: amountCents },
           });
+
+          const email = await fetchProfileEmail(admin, profileId);
+          if (email) {
+            const tpl = walletTopup({
+              amountCents,
+              dashboardUrl: `${siteUrl()}/dashboard/facturacion`,
+            });
+            sendEmail({
+              to: email,
+              subject: tpl.subject,
+              text: tpl.text,
+              html: tpl.html,
+            }).catch(() => {});
+          }
         }
         break;
       }
@@ -85,6 +126,20 @@ export async function POST(request: NextRequest) {
           title: `Plan ${plan} activado`,
           body: "Tu suscripción fue activada exitosamente.",
         });
+
+        const email = await fetchProfileEmail(admin, profileId);
+        if (email) {
+          const tpl = planActivated({
+            plan,
+            manageUrl: `${siteUrl()}/dashboard/facturacion`,
+          });
+          sendEmail({
+            to: email,
+            subject: tpl.subject,
+            text: tpl.text,
+            html: tpl.html,
+          }).catch(() => {});
+        }
       }
       break;
     }
@@ -146,6 +201,19 @@ export async function POST(request: NextRequest) {
           title: "Suscripción cancelada",
           body: "Tu suscripción fue cancelada. Tu portal o equipo ha regresado al plan básico.",
         });
+
+        const email = await fetchProfileEmail(admin, profileId);
+        if (email) {
+          const tpl = planCancelled({
+            manageUrl: `${siteUrl()}/dashboard/facturacion`,
+          });
+          sendEmail({
+            to: email,
+            subject: tpl.subject,
+            text: tpl.text,
+            html: tpl.html,
+          }).catch(() => {});
+        }
       }
       break;
     }
@@ -166,6 +234,19 @@ export async function POST(request: NextRequest) {
           title: "Fallo en el pago",
           body: "No pudimos procesar tu pago. Por favor actualiza tu método de pago.",
         });
+
+        const email = await fetchProfileEmail(admin, profile.id);
+        if (email) {
+          const tpl = paymentFailed({
+            updatePaymentUrl: `${siteUrl()}/api/stripe/portal`,
+          });
+          sendEmail({
+            to: email,
+            subject: tpl.subject,
+            text: tpl.text,
+            html: tpl.html,
+          }).catch(() => {});
+        }
       }
       break;
     }
