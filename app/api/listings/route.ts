@@ -42,6 +42,11 @@ export async function POST(request: NextRequest) {
     finalSlug = `${baseSlug}-${counter}`;
   }
 
+  // Re-upload external images to Supabase for reliable rendering
+  const processedImages = body.images?.length
+    ? await (await import("@/lib/storage/upload-external")).reuploadExternalImages(body.images, user.id)
+    : [];
+
   const { data, error } = await supabase.from("listings").insert({
     profile_id: user.id,
     slug: finalSlug,
@@ -63,7 +68,7 @@ export async function POST(request: NextRequest) {
     bedrooms: body.bedrooms ?? null,
     bathrooms: body.bathrooms ?? null,
     parking: body.parking ?? null,
-    images: body.images ?? [],
+    images: processedImages,
     neighborhood_summary: body.neighborhood_summary ?? null,
     ai_prompt_used: body.ai_prompt_used ?? null,
   }).select().single();
@@ -114,6 +119,11 @@ export async function PATCH(request: NextRequest) {
   const { id, ...fields } = body;
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
+  // Re-upload external images to Supabase for reliable rendering
+  const processedImages = fields.images?.length
+    ? await (await import("@/lib/storage/upload-external")).reuploadExternalImages(fields.images, user.id)
+    : [];
+
   // Only allow updating the caller's own listing
   const { data, error } = await supabase
     .from("listings")
@@ -134,7 +144,7 @@ export async function PATCH(request: NextRequest) {
       bedrooms: fields.bedrooms ?? null,
       bathrooms: fields.bathrooms ?? null,
       parking: fields.parking ?? null,
-      images: fields.images ?? [],
+      images: processedImages,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)

@@ -33,6 +33,8 @@ export function SimplePropertyForm() {
   const [listingStatus, setListingStatus] = useState("borrador");
   const [images, setImages] = useState<string[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [rewriting, setRewriting] = useState(false);
+  const [aiGenerated, setAiGenerated] = useState(false);
   
   // Coords from address autocomplete
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -106,6 +108,41 @@ export function SimplePropertyForm() {
     setCoords({ lat: s.lat, lng: s.lng });
   }
 
+  async function handleAiRewrite() {
+    if (!description.trim()) return;
+    setRewriting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/ai/rewrite-description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          description,
+          title,
+          city: coords ? address.split(",").pop()?.trim() : null,
+          neighborhood: address,
+          price: price || null,
+          property_type: propertyType,
+          area_m2: area || null,
+          bedrooms: bedrooms || null,
+          bathrooms: bathrooms || null,
+          parking: parking || null,
+          amenities: amenitiesText ? amenitiesText.split(",").map(a => a.trim()) : [],
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al reescribir");
+      if (data.rewritten) {
+        setDescription(data.rewritten);
+        setAiGenerated(data.ai_generated ?? false);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al reescribir con IA");
+    } finally {
+      setRewriting(false);
+    }
+  }
+
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
@@ -154,6 +191,7 @@ export function SimplePropertyForm() {
           lat:          coords?.lat ?? null,
           lng:          coords?.lng ?? null,
           images:       images.length > 0 ? images : null,
+          ai_generated: aiGenerated,
         }),
       });
 
@@ -255,7 +293,29 @@ export function SimplePropertyForm() {
           />
 
           <div className="flex flex-col gap-1.5">
-            <label className="label-caps text-[#6B7565]">Descripción</label>
+            <div className="flex items-center justify-between">
+              <label className="label-caps text-[#6B7565]">Descripción</label>
+              <button
+                type="button"
+                onClick={handleAiRewrite}
+                disabled={rewriting || !description.trim()}
+                className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-sm transition-all border"
+                style={{
+                  color: aiGenerated ? "#6B7565" : "#FF7F11",
+                  borderColor: aiGenerated ? "#EAE7DC" : "#FF7F11",
+                  background: aiGenerated ? "#F7F5EE" : "#FFF8F2",
+                  opacity: rewriting || !description.trim() ? 0.5 : 1,
+                }}
+              >
+                {rewriting ? (
+                  <><div className="w-3 h-3 border-2 border-[#FF7F11] border-t-transparent rounded-full animate-spin" /> Reescribiendo...</>
+                ) : aiGenerated ? (
+                  <>✦ Reescrito por IA</>
+                ) : (
+                  <>✦ Reescribir con IA</>
+                )}
+              </button>
+            </div>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
