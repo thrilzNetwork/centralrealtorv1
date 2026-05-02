@@ -74,23 +74,31 @@ export async function POST(request: NextRequest) {
   if (body.status === "activo") {
     const { data: userProfile } = await supabase
       .from("profiles")
-      .select("email")
+      .select("email, slug")
       .eq("id", user.id)
       .single();
 
     if (userProfile?.email) {
-      const { sendEmail, propertyPublishedEmail } = await import("@/lib/email");
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://centralbolivia.com";
-      const { subject, html } = propertyPublishedEmail({
-        title: body.title,
-        address: body.address ?? null,
-        price: body.price ?? null,
-        currency: body.currency ?? "USD",
-        propertyUrl: `${siteUrl}/p/${finalSlug}`,
-      });
-      sendEmail({ to: userProfile.email, subject, html }).catch((err) =>
-        console.error("[LISTINGS] Email failed:", err)
-      );
+      try {
+        const { sendEmail, propertyPublishedEmail } = await import("@/lib/email");
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://centralbolivia.com";
+        const portalUrl = userProfile.slug
+          ? `${siteUrl}/${userProfile.slug}`
+          : siteUrl;
+        const { subject, html } = propertyPublishedEmail({
+          title: body.title,
+          address: body.address ?? null,
+          price: body.price ?? null,
+          currency: body.currency ?? "USD",
+          propertyUrl: `${portalUrl}/propiedades/${finalSlug}`,
+        });
+        const emailResult = await sendEmail({ to: userProfile.email, subject, html });
+        if (!emailResult.sent) {
+          console.error("[LISTINGS] Email failed:", emailResult.error);
+        }
+      } catch (err) {
+        console.error("[LISTINGS] Email error:", err);
+      }
     }
   }
 

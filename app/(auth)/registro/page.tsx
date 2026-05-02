@@ -21,23 +21,44 @@ export default function RegistroPage() {
     setLoading(true);
     setError(null);
 
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName },
-        emailRedirectTo: `${window.location.origin}/api/auth/callback`,
-      },
+    // Use the custom onboarding API so the branded welcome email fires
+    const res = await fetch("/api/onboarding/create-account", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password,
+        fullName,
+        brandName: fullName, // default brand name = full name
+        whatsapp: "",
+        theme: "realtor-v1",
+      }),
     });
 
-    if (authError) {
-      setError(authError.message);
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      setError(data.error ?? "No se pudo crear la cuenta. Intenta de nuevo.");
       setLoading(false);
       return;
     }
 
-    setSuccess(true);
+    // Auto-sign in after successful creation
+    const supabase = createClient();
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError) {
+      // Account created but auto-login failed — send them to login page
+      setSuccess(true);
+      setLoading(false);
+      return;
+    }
+
+    // Redirect to dashboard on success
+    router.push("/dashboard");
     setLoading(false);
   }
 
