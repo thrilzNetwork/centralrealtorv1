@@ -10,6 +10,8 @@ import { LandingChatbot } from "@/components/LandingChatbot";
 import { BrandLogoBar } from "@/components/landing/BrandLogoBar";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 // ─── Metadata ─────────────────────────────────────────────────
 export async function generateMetadata(): Promise<Metadata> {
   const headerStore = await headers();

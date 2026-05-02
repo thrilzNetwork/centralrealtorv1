@@ -80,32 +80,36 @@ export async function middleware(request: NextRequest) {
   // ── Always refresh auth session for platform routes ──
   if (isMainDomain || isPlatformPath(pathname)) {
     // On main domain with a non-platform path, first segment may be a tenant slug
-    if (isMainDomain && !isPlatformPath(pathname) && pathname.split("/").filter(Boolean).length === 1) {
-      const potentialSlug = pathname.split("/").filter(Boolean)[0];
-      const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          cookies: {
-            getAll: () => request.cookies.getAll(),
-            setAll: () => {},
-          },
+    if (isMainDomain && !isPlatformPath(pathname)) {
+      const segments = pathname.split("/").filter(Boolean);
+      const potentialSlug = segments[0];
+      if (potentialSlug) {
+        const supabase = createServerClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          {
+            cookies: {
+              getAll: () => request.cookies.getAll(),
+              setAll: () => {},
+            },
+          }
+        );
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("slug")
+          .eq("slug", potentialSlug)
+          .maybeSingle();
+        if (profile?.slug) {
+          const rewriteUrl = url.clone();
+          // Strip slug from path — e.g. /slug/propiedades/x → /propiedades/x
+          rewriteUrl.pathname = "/" + segments.slice(1).join("/");
+          const requestHeaders = new Headers(request.headers);
+          requestHeaders.set("x-tenant-slug", profile.slug);
+          requestHeaders.set("x-tenant-host", host);
+          return NextResponse.rewrite(rewriteUrl, {
+            request: { headers: requestHeaders },
+          });
         }
-      );
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("slug")
-        .eq("slug", potentialSlug)
-        .maybeSingle();
-      if (profile?.slug) {
-        const rewriteUrl = url.clone();
-        rewriteUrl.pathname = "/";
-        const requestHeaders = new Headers(request.headers);
-        requestHeaders.set("x-tenant-slug", profile.slug);
-        requestHeaders.set("x-tenant-host", host);
-        return NextResponse.rewrite(rewriteUrl, {
-          request: { headers: requestHeaders },
-        });
       }
     }
     return refreshSession(request);
