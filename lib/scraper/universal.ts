@@ -317,8 +317,17 @@ function resolveUrl(src: string, base: string): string {
 function isPropertyImage(src: string, hostname: string): boolean {
   if (!src || src.startsWith("data:") || src.length < 10) return false;
   if (!/\.(jpg|jpeg|png|webp)/i.test(src)) return false;
+  const lowerSrc = src.toLowerCase();
   // Exclude obvious non-property images
-  if (/logo|icon|avatar|sprite|thumb-nav|banner-top|pixel|tracking|blank|placeholder/i.test(src)) return false;
+  if (/logo|icon|avatar|sprite|thumb-nav|banner-top|pixel|tracking|blank|placeholder/i.test(lowerSrc)) return false;
+  // Exclude app store badges
+  if (/google-play|app-store|appstore|disponible.*google|disponible.*app/i.test(lowerSrc)) return false;
+  // Exclude flag icons and country badges (common on multi-country portals)
+  if (/flag|bandera|isotipo/i.test(lowerSrc)) return false;
+  // Exclude UI/search icons often scraped as images
+  if (/search|magnif|lupa/i.test(lowerSrc)) return false;
+  // Exclude very small images (likely icons/badges)
+  if (/th\.(outside)?24x24|th\.(outside)?110x50|th\.(outside)?700x200/i.test(lowerSrc)) return false;
   return true;
 }
 
