@@ -98,10 +98,14 @@ export async function middleware(request: NextRequest) {
         .eq("slug", potentialSlug)
         .maybeSingle();
       if (profile?.slug) {
+        const rewriteUrl = url.clone();
+        rewriteUrl.pathname = "/";
         const requestHeaders = new Headers(request.headers);
         requestHeaders.set("x-tenant-slug", profile.slug);
         requestHeaders.set("x-tenant-host", host);
-        return NextResponse.next({ request: { headers: requestHeaders } });
+        return NextResponse.rewrite(rewriteUrl, {
+          request: { headers: requestHeaders },
+        });
       }
     }
     return refreshSession(request);
