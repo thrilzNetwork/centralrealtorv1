@@ -322,13 +322,22 @@ function isPropertyImage(src: string, hostname: string): boolean {
   return true;
 }
 
-function detectPropertyType(text: string): string {
+function detectPropertyType(text: string, title?: string): string {
+  // Title has highest signal — check it first
+  const titleLower = (title ?? "").toLowerCase();
+  if (/\b(casa|house|chalet|villa|duplex|townhouse)\b/.test(titleLower)) return "casa";
+  if (/\b(departamento|apartamento|depto|piso|flat|apartment)\b/.test(titleLower)) return "departamento";
+  if (/\b(terreno|lote|solar|land|lot)\b/.test(titleLower)) return "terreno";
+  if (/\b(oficina|office)\b/.test(titleLower)) return "oficina";
+  if (/\b(local\s*comercial|local|comercial|shop|store|galería)\b/.test(titleLower)) return "local_comercial";
+
+  // Fall back to body text with casa checked first (most common)
   const t = text.toLowerCase();
+  if (/\b(casa|house|chalet|villa|duplex|townhouse)\b/.test(t)) return "casa";
   if (/\b(departamento|apartamento|depto|piso|flat|apartment)\b/.test(t)) return "departamento";
   if (/\b(terreno|lote|solar|land|lot)\b/.test(t)) return "terreno";
   if (/\b(oficina|office)\b/.test(t)) return "oficina";
   if (/\b(local\s*comercial|local|comercial|shop|store|galería)\b/.test(t)) return "local_comercial";
-  if (/\b(casa|house|chalet|villa|duplex|townhouse)\b/.test(t)) return "casa";
   return "otro";
 }
 
