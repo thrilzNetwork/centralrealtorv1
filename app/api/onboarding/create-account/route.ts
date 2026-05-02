@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: profileError.message }, { status: 500 });
     }
 
-    // ── 4. Send welcome email (non-blocking) ─────────────────────────
+    // ── 4. Send welcome email (awaited) ─────────────────────────
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://centralbolivia.com";
     const { subject, html } = welcomeEmail({
       fullName: fullName ?? "Agente",
@@ -89,9 +89,12 @@ export async function POST(request: NextRequest) {
       dashboardUrl: `${siteUrl}/dashboard`,
     });
 
-    sendEmail({ to: email, subject, html }).catch((err) => {
-      console.error("[ONBOARDING] Welcome email failed:", err);
-    });
+    const emailResult = await sendEmail({ to: email, subject, html });
+    if (!emailResult.sent) {
+      console.error("[ONBOARDING] Welcome email failed:", emailResult.error);
+    } else {
+      console.log("[ONBOARDING] Welcome email sent:", emailResult.id);
+    }
 
     return NextResponse.json({ userId, slug: finalSlug, success: true });
   } catch (err) {
