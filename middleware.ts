@@ -79,6 +79,31 @@ export async function middleware(request: NextRequest) {
 
   // ── Always refresh auth session for platform routes ──
   if (isMainDomain || isPlatformPath(pathname)) {
+    // On main domain with a non-platform path, first segment may be a tenant slug
+    if (isMainDomain && !isPlatformPath(pathname) && pathname.split("/").filter(Boolean).length === 1) {
+      const potentialSlug = pathname.split("/").filter(Boolean)[0];
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            getAll: () => request.cookies.getAll(),
+            setAll: () => {},
+          },
+        }
+      );
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("slug")
+        .eq("slug", potentialSlug)
+        .maybeSingle();
+      if (profile?.slug) {
+        const requestHeaders = new Headers(request.headers);
+        requestHeaders.set("x-tenant-slug", profile.slug);
+        requestHeaders.set("x-tenant-host", host);
+        return NextResponse.next({ request: { headers: requestHeaders } });
+      }
+    }
     return refreshSession(request);
   }
 
