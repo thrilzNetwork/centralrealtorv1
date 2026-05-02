@@ -1,7 +1,7 @@
 // Central Bolivia email service — lazy init so build doesn't fail without env var
 import { Resend } from "resend";
 
-const FROM_EMAIL = "Central Bolivia <notificaciones@centralbolivia.com>";
+const FROM_EMAIL = "Central Bolivia <alejandro.soria@centralbolivia.com>";
 let resendInstance: Resend | null = null;
 function getResend(): Resend {
   if (!resendInstance) resendInstance = new Resend(process.env.RESEND_API_KEY!);
