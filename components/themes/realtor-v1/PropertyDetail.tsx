@@ -28,8 +28,28 @@ const PROPERTY_TYPE_LABELS: Record<string, string> = {
 export function PropertyDetail({ listing }: PropertyDetailProps) {
   const { profile } = useTenant();
   const [activeImage, setActiveImage] = useState(0);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const decodedDescription = decodeHtmlEntities(listing.description ?? "");
   const primaryColor = profile.primary_color ?? "#FF7F11";
+
+  const openGallery = (index: number) => {
+    setActiveImage(index);
+    setGalleryOpen(true);
+    document.body.style.overflow = "hidden";
+  };
+
+  const closeGallery = () => {
+    setGalleryOpen(false);
+    document.body.style.overflow = "";
+  };
+
+  const nextImage = () => {
+    setActiveImage((prev) => (prev + 1) % (listing.images?.length || 1));
+  };
+
+  const prevImage = () => {
+    setActiveImage((prev) => (prev - 1 + (listing.images?.length || 1)) % (listing.images?.length || 1));
+  };
 
   return (
     <div className="min-h-screen bg-[#F7F5EE]">
@@ -71,7 +91,10 @@ export function PropertyDetail({ listing }: PropertyDetailProps) {
           {/* ── Images gallery — always above description ── */}
           <div className="lg:col-span-2 order-2">
             {/* Main image */}
-            <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] overflow-hidden bg-[#E2E8CE] rounded-sm">
+            <div
+              className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] overflow-hidden bg-[#E2E8CE] rounded-sm cursor-zoom-in"
+              onClick={() => listing.images?.length && openGallery(activeImage)}
+            >
               {listing.images?.[activeImage] ? (
                 <img
                   src={listing.images[activeImage]}
@@ -99,7 +122,7 @@ export function PropertyDetail({ listing }: PropertyDetailProps) {
                 {listing.images.map((img, i) => (
                   <button
                     key={i}
-                    onClick={() => setActiveImage(i)}
+                    onClick={() => openGallery(i)}
                     className={`relative w-14 h-10 sm:w-16 sm:h-12 flex-shrink-0 overflow-hidden rounded-sm border-2 transition-all ${
                       i === activeImage ? "border-[#FF7F11]" : "border-transparent opacity-60 hover:opacity-100"
                     }`}
@@ -233,6 +256,78 @@ export function PropertyDetail({ listing }: PropertyDetailProps) {
       </main>
 
       <RealtorV1Footer />
+
+      {/* ── Full-screen Gallery Overlay ── */}
+      {galleryOpen && listing.images?.length > 0 && (
+        <div
+          className="fixed inset-0 z-[9999] bg-[#0a0a0a]/95 backdrop-blur-sm flex flex-col"
+          onClick={closeGallery}
+        >
+          {/* Top bar */}
+          <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
+            <span className="text-[11px] sm:text-xs text-white/60 uppercase tracking-widest font-medium">
+              {activeImage + 1} / {listing.images.length}
+            </span>
+            <button
+              onClick={closeGallery}
+              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              aria-label="Cerrar"
+            >
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Image area */}
+          <div className="flex-1 flex items-center justify-center px-2 sm:px-8 relative">
+            <button
+              onClick={(e) => { e.stopPropagation(); prevImage(); }}
+              className="absolute left-1 sm:left-4 z-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white/80 hover:text-white transition-colors"
+              aria-label="Anterior"
+            >
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            <img
+              src={listing.images[activeImage]}
+              alt={`${listing.title} — Foto ${activeImage + 1}`}
+              className="max-w-full max-h-full object-contain rounded-sm select-none"
+              onClick={(e) => e.stopPropagation()}
+              draggable={false}
+            />
+
+            <button
+              onClick={(e) => { e.stopPropagation(); nextImage(); }}
+              className="absolute right-1 sm:right-4 z-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white/80 hover:text-white transition-colors"
+              aria-label="Siguiente"
+            >
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Bottom thumbnail strip */}
+          <div className="px-4 py-3 sm:px-6 sm:py-4">
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none justify-center">
+              {listing.images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => { e.stopPropagation(); setActiveImage(i); }}
+                  className={`relative w-12 h-9 sm:w-16 sm:h-12 flex-shrink-0 overflow-hidden rounded-sm border-2 transition-all ${
+                    i === activeImage ? "border-white" : "border-transparent opacity-50 hover:opacity-80"
+                  }`}
+                >
+                  <img src={img} alt={`Ir a foto ${i + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
